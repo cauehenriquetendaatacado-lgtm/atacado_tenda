@@ -361,130 +361,142 @@
     background:var(--panel);
     border:1px solid var(--line);
     border-radius:6px;
-    padding:16px 18px;
+    padding:18px 20px;
   }
-  .cartao-grafico .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; margin-bottom:14px; }
-  .grafico-barras{
+  .cartao-grafico .cabecalho-grafico,
+  .cartao-grafico-regionais .cabecalho-grafico{
     display:flex;
-    align-items:flex-end;
-    justify-content:space-around;
-    gap:14px;
-    height:150px;
-    padding-bottom:2px;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:16px;
+    padding-bottom:12px;
     border-bottom:1px solid var(--line);
   }
-  .grafico-coluna{
+  .cartao-grafico .rotulo,
+  .cartao-grafico-regionais .rotulo{
+    color:var(--muted);
+    font-size:0.74rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.09em;
+  }
+  .cartao-grafico .total-grafico,
+  .cartao-grafico-regionais .total-grafico{
+    font-family: var(--font-data);
+    font-size:0.76rem;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .cartao-grafico .total-grafico strong,
+  .cartao-grafico-regionais .total-grafico strong{
+    color:var(--text);
+    font-weight:600;
+  }
+
+  .grafico-lista{
     display:flex;
     flex-direction:column;
-    align-items:center;
-    justify-content:flex-end;
-    height:100%;
-    flex:1;
+    gap:16px;
   }
-  .grafico-valor{
+  .grafico-linha{
+    display:grid;
+    grid-template-columns: 122px 1fr auto;
+    align-items:center;
+    gap:12px;
+  }
+  .grafico-linha .rotulo-linha{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:0.8rem;
+    color:var(--text);
+    font-weight:500;
+    line-height:1.25;
+  }
+  .grafico-linha .indicador-cor{
+    width:8px;
+    height:8px;
+    border-radius:2px;
+    flex-shrink:0;
+  }
+  .grafico-trilha{
+    position:relative;
+    height:9px;
+    background:var(--panel-2);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .grafico-preenchimento{
+    position:absolute;
+    top:0; left:0; bottom:0;
+    width:0%;
+    border-radius:3px;
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .grafico-preenchimento.apoio-copia{ background:var(--amber); }
+  .grafico-preenchimento.quadrilha{ background:var(--red); }
+  .grafico-preenchimento.monitoramento{ background:var(--green); }
+  .grafico-preenchimento.cor-1{ background:var(--amber); }
+  .grafico-preenchimento.cor-2{ background:var(--focus); }
+  .grafico-preenchimento.cor-3{ background:var(--green); }
+  .grafico-preenchimento.cor-4{ background:#c98a3f; }
+  .indicador-cor.apoio-copia{ background:var(--amber); }
+  .indicador-cor.quadrilha{ background:var(--red); }
+  .indicador-cor.monitoramento{ background:var(--green); }
+  .indicador-cor.cor-1{ background:var(--amber); }
+  .indicador-cor.cor-2{ background:var(--focus); }
+  .indicador-cor.cor-3{ background:var(--green); }
+  .indicador-cor.cor-4{ background:#c98a3f; }
+
+  .grafico-linha .valores-linha{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    justify-self:end;
     font-family: var(--font-data);
-    font-size:1.05rem;
+  }
+  .grafico-linha .valor-linha{
+    font-size:0.92rem;
     font-weight:600;
     color:var(--text);
-    margin-bottom:6px;
-    letter-spacing:0.01em;
-    transition: color 0.2s ease;
+    min-width:22px;
+    text-align:right;
   }
-  .grafico-barra{
-    width:100%;
-    max-width:52px;
-    border-radius:6px 6px 2px 2px;
-    min-height:4px;
-    transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1), filter 0.2s ease, transform 0.2s ease;
-    position:relative;
-  }
-  .grafico-barra::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    border-radius:inherit;
-    background:linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 55%);
-    pointer-events:none;
-  }
-  .grafico-coluna:hover .grafico-barra{ filter:brightness(1.15); transform:scaleX(1.06); }
-  .grafico-coluna:hover .grafico-valor{ color:var(--focus); }
-  .grafico-barra.apoio-copia{
-    background:linear-gradient(180deg, #8fdcff 0%, var(--amber) 65%, #2b93c2 100%);
-    box-shadow:0 6px 16px -6px rgba(79,195,247,0.55);
-  }
-  .grafico-barra.quadrilha{
-    background:linear-gradient(180deg, #ff9d99 0%, var(--red) 65%, #b6423f 100%);
-    box-shadow:0 6px 16px -6px rgba(224,90,86,0.55);
-  }
-  .grafico-barra.monitoramento{
-    background:linear-gradient(180deg, #86e3ac 0%, var(--green) 65%, #2f8a5c 100%);
-    box-shadow:0 6px 16px -6px rgba(69,181,126,0.55);
-  }
-  .grafico-rotulo{
-    margin-top:8px;
+  .grafico-linha .percentual-linha{
     font-size:0.72rem;
     color:var(--muted);
-    text-align:center;
-    line-height:1.3;
-    transition: color 0.2s ease;
+    min-width:40px;
+    text-align:right;
+  }
+
+  .linha-grafico-regional{
+    background:none;
+    border:none;
+    padding:0;
+    width:100%;
+    cursor:pointer;
+    font-family: var(--font-body);
+    transition: opacity 0.15s ease;
+  }
+  .linha-grafico-regional:hover{ opacity:0.82; }
+  .linha-grafico-regional:hover .grafico-preenchimento{ filter:brightness(1.15); }
+  .linha-grafico-regional.ativo .grafico-trilha{
+    box-shadow:0 0 0 1px var(--focus);
+  }
+  .linha-grafico-regional.ativo .rotulo-linha{ color:var(--focus); }
+
+  @media (max-width: 480px){
+    .grafico-linha{ grid-template-columns: 92px 1fr auto; }
+    .grafico-linha .percentual-linha{ display:none; }
   }
 
   .cartao-grafico-regionais{
     background:var(--panel);
     border:1px solid var(--line);
     border-radius:6px;
-    padding:16px 18px;
+    padding:18px 20px;
     margin-bottom:24px;
-  }
-  .cartao-grafico-regionais .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; margin-bottom:14px; }
-  .grafico-barras-regionais{
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-around;
-    gap:10px;
-    height:150px;
-    padding-bottom:2px;
-    border-bottom:1px solid var(--line);
-  }
-  .grafico-coluna-regional{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-end;
-    height:100%;
-    flex:1;
-    cursor:pointer;
-    background:none;
-    border:none;
-    padding:0;
-    font-family: var(--font-body);
-    transition: transform 0.2s ease;
-  }
-  .grafico-coluna-regional .grafico-barra{
-    max-width:60px;
-  }
-  .grafico-coluna-regional:hover{ transform:translateY(-3px); }
-  .grafico-coluna-regional:hover .grafico-rotulo{ color:var(--text); }
-  .grafico-coluna-regional:hover .grafico-barra{ filter:brightness(1.15); }
-  .grafico-coluna-regional.ativo .grafico-barra{
-    filter:brightness(1.1);
-    box-shadow:0 0 0 2px var(--focus), 0 6px 16px -6px rgba(111,208,255,0.6);
-  }
-  .grafico-barra.cor-1{
-    background:linear-gradient(180deg, #8fdcff 0%, var(--amber) 65%, #2b93c2 100%);
-    box-shadow:0 6px 16px -6px rgba(79,195,247,0.5);
-  }
-  .grafico-barra.cor-2{
-    background:linear-gradient(180deg, #b3ecff 0%, var(--focus) 65%, #2f9bc9 100%);
-    box-shadow:0 6px 16px -6px rgba(111,208,255,0.5);
-  }
-  .grafico-barra.cor-3{
-    background:linear-gradient(180deg, #86e3ac 0%, var(--green) 65%, #2f8a5c 100%);
-    box-shadow:0 6px 16px -6px rgba(69,181,126,0.5);
-  }
-  .grafico-barra.cor-4{
-    background:linear-gradient(180deg, #ff9d99 0%, var(--red) 65%, #b6423f 100%);
-    box-shadow:0 6px 16px -6px rgba(224,90,86,0.5);
   }
 
   .pagina-header{
@@ -702,30 +714,45 @@
         </div>
 
         <div class="cartao-grafico">
-          <div class="rotulo">Apoio de cópia, quadrilha e monitoramento</div>
-          <div class="grafico-barras">
-            <div class="grafico-coluna">
-              <div class="grafico-valor" id="grafico-valor-apoio">0</div>
-              <div class="grafico-barra apoio-copia" id="grafico-barra-apoio" style="height:4px;"></div>
-              <div class="grafico-rotulo">Apoio de cópia</div>
+          <div class="cabecalho-grafico">
+            <div class="rotulo">Indicadores das ocorrências</div>
+            <div class="total-grafico"><strong id="grafico-total-ocorrencias">0</strong> no total</div>
+          </div>
+          <div class="grafico-lista">
+            <div class="grafico-linha">
+              <div class="rotulo-linha"><span class="indicador-cor apoio-copia"></span>Apoio de cópia</div>
+              <div class="grafico-trilha"><div class="grafico-preenchimento apoio-copia" id="grafico-barra-apoio" style="width:0%;"></div></div>
+              <div class="valores-linha">
+                <span class="valor-linha" id="grafico-valor-apoio">0</span>
+                <span class="percentual-linha" id="grafico-pct-apoio">0%</span>
+              </div>
             </div>
-            <div class="grafico-coluna">
-              <div class="grafico-valor" id="grafico-valor-quadrilha">0</div>
-              <div class="grafico-barra quadrilha" id="grafico-barra-quadrilha" style="height:4px;"></div>
-              <div class="grafico-rotulo">Quadrilha</div>
+            <div class="grafico-linha">
+              <div class="rotulo-linha"><span class="indicador-cor quadrilha"></span>Quadrilha</div>
+              <div class="grafico-trilha"><div class="grafico-preenchimento quadrilha" id="grafico-barra-quadrilha" style="width:0%;"></div></div>
+              <div class="valores-linha">
+                <span class="valor-linha" id="grafico-valor-quadrilha">0</span>
+                <span class="percentual-linha" id="grafico-pct-quadrilha">0%</span>
+              </div>
             </div>
-            <div class="grafico-coluna">
-              <div class="grafico-valor" id="grafico-valor-monitoramento">0</div>
-              <div class="grafico-barra monitoramento" id="grafico-barra-monitoramento" style="height:4px;"></div>
-              <div class="grafico-rotulo">Monitoramento</div>
+            <div class="grafico-linha">
+              <div class="rotulo-linha"><span class="indicador-cor monitoramento"></span>Monitoramento</div>
+              <div class="grafico-trilha"><div class="grafico-preenchimento monitoramento" id="grafico-barra-monitoramento" style="width:0%;"></div></div>
+              <div class="valores-linha">
+                <span class="valor-linha" id="grafico-valor-monitoramento">0</span>
+                <span class="percentual-linha" id="grafico-pct-monitoramento">0%</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="cartao-grafico-regionais">
-        <div class="rotulo">Ocorrências por regional</div>
-        <div class="grafico-barras-regionais" id="grafico-regionais"></div>
+        <div class="cabecalho-grafico">
+          <div class="rotulo">Ocorrências por regional</div>
+          <div class="total-grafico"><strong id="grafico-total-regionais">0</strong> no total</div>
+        </div>
+        <div class="grafico-lista" id="grafico-regionais"></div>
       </div>
 
       <form id="form-ocorrencia">
@@ -1294,23 +1321,31 @@
 
   function renderizarGraficoRegionais(){
     const container = $("#grafico-regionais");
-    const grupos = agruparPorRegional(ocorrencias);
+    const grupos = agruparPorRegional(ocorrencias).slice().sort((a, b) => b.total - a.total);
+    const totalGeral = grupos.reduce((s, g) => s + g.total, 0);
     const maior = Math.max(...grupos.map((g) => g.total), 1);
-    const ALTURA_MAX = 120;
+
+    $("#grafico-total-regionais").textContent = totalGeral;
 
     container.innerHTML = grupos.map((g, i) => {
-      const altura = g.total === 0 ? 4 : Math.max(4, Math.round((g.total / maior) * ALTURA_MAX));
+      const largura = g.total === 0 ? 0 : Math.max(3, Math.round((g.total / maior) * 100));
+      const pct = totalGeral === 0 ? 0 : Math.round((g.total / totalGeral) * 100);
       const cor = `cor-${(i % 4) + 1}`;
       return `
-        <button type="button" class="grafico-coluna-regional" data-regional="${escapeHtml(g.nome)}">
-          <div class="grafico-valor">${g.total}</div>
-          <div class="grafico-barra ${cor}" style="height:${altura}px;"></div>
-          <div class="grafico-rotulo">${escapeHtml(g.nome)}</div>
+        <button type="button" class="linha-grafico-regional" data-regional="${escapeHtml(g.nome)}">
+          <div class="grafico-linha">
+            <div class="rotulo-linha"><span class="indicador-cor ${cor}"></span>${escapeHtml(g.nome)}</div>
+            <div class="grafico-trilha"><div class="grafico-preenchimento ${cor}" style="width:${largura}%;"></div></div>
+            <div class="valores-linha">
+              <span class="valor-linha">${g.total}</span>
+              <span class="percentual-linha">${pct}%</span>
+            </div>
+          </div>
         </button>
       `;
     }).join("");
 
-    container.querySelectorAll(".grafico-coluna-regional").forEach((col) => {
+    container.querySelectorAll(".linha-grafico-regional").forEach((col) => {
       col.addEventListener("click", () => {
         const nome = col.dataset.regional;
         if(nome === "Sem regional definida") return;
@@ -1320,22 +1355,24 @@
   }
 
   function atualizarGrafico(){
+    const totalOcorrencias = ocorrencias.length;
     const qtdApoio = ocorrencias.filter((o) => o.apoioCopia).length;
     const qtdQuadrilha = ocorrencias.filter((o) => o.quadrilha).length;
     const qtdMonitoramento = ocorrencias.filter((o) => o.monitoramento).length;
-    const maior = Math.max(qtdApoio, qtdQuadrilha, qtdMonitoramento, 1);
-    const ALTURA_MAX = 120;
+
+    $("#grafico-total-ocorrencias").textContent = totalOcorrencias;
 
     const partes = [
-      { valor: qtdApoio, elValor: "#grafico-valor-apoio", elBarra: "#grafico-barra-apoio" },
-      { valor: qtdQuadrilha, elValor: "#grafico-valor-quadrilha", elBarra: "#grafico-barra-quadrilha" },
-      { valor: qtdMonitoramento, elValor: "#grafico-valor-monitoramento", elBarra: "#grafico-barra-monitoramento" },
+      { valor: qtdApoio, elValor: "#grafico-valor-apoio", elBarra: "#grafico-barra-apoio", elPct: "#grafico-pct-apoio" },
+      { valor: qtdQuadrilha, elValor: "#grafico-valor-quadrilha", elBarra: "#grafico-barra-quadrilha", elPct: "#grafico-pct-quadrilha" },
+      { valor: qtdMonitoramento, elValor: "#grafico-valor-monitoramento", elBarra: "#grafico-barra-monitoramento", elPct: "#grafico-pct-monitoramento" },
     ];
 
     partes.forEach((p) => {
+      const pct = totalOcorrencias === 0 ? 0 : Math.round((p.valor / totalOcorrencias) * 100);
       $(p.elValor).textContent = p.valor;
-      const altura = p.valor === 0 ? 4 : Math.max(4, Math.round((p.valor / maior) * ALTURA_MAX));
-      $(p.elBarra).style.height = `${altura}px`;
+      $(p.elPct).textContent = `${pct}%`;
+      $(p.elBarra).style.width = `${pct}%`;
     });
   }
 
