@@ -746,9 +746,8 @@
         </div>
         <div>
           <label for="loja">Loja</label>
-          <select id="loja" required>
-            <option value="" disabled selected>Selecione a loja...</option>
-          </select>
+          <input type="text" id="loja" list="lista-lojas" placeholder="Digite o código (ex: CT06)" autocomplete="off" required />
+          <datalist id="lista-lojas"></datalist>
         </div>
         <div>
           <label for="regional">Regional</label>
@@ -901,24 +900,24 @@
     });
   });
 
-  function popularSelectLojas(){
-    const select = $("#loja");
+  function popularListaLojas(){
+    const datalist = $("#lista-lojas");
     REGIONAIS.forEach((r) => {
-      const grupo = document.createElement("optgroup");
-      grupo.label = r.nome;
       r.lojas.forEach((codigo) => {
         const opt = document.createElement("option");
         opt.value = codigo;
-        opt.textContent = codigo;
-        grupo.appendChild(opt);
+        opt.label = r.nome;
+        datalist.appendChild(opt);
       });
-      select.appendChild(grupo);
     });
   }
-  popularSelectLojas();
+  popularListaLojas();
 
-  $("#loja").addEventListener("change", () => {
-    const info = MAPA_LOJAS[$("#loja").value];
+  $("#loja").addEventListener("input", (e) => {
+    const posicaoCursor = e.target.selectionStart;
+    e.target.value = e.target.value.toUpperCase();
+    e.target.setSelectionRange(posicaoCursor, posicaoCursor);
+    const info = MAPA_LOJAS[e.target.value.trim()];
     $("#regional").value = info ? info.regional : "";
   });
 
