@@ -494,6 +494,50 @@
   .grafico-barra.cor-3{ background:var(--green); }
   .grafico-barra.cor-4{ background:var(--red); }
 
+  .grafico-pizza-wrap{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    flex-wrap:wrap;
+  }
+  .grafico-pizza{
+    width:140px;
+    height:140px;
+    flex-shrink:0;
+  }
+  .grafico-legenda{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    flex:1;
+    min-width:150px;
+  }
+  .legenda-item{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:0.82rem;
+    color:var(--muted);
+    background:none;
+    border:none;
+    padding:2px 0;
+    text-align:left;
+    font-family: var(--font-body);
+  }
+  .legenda-item.clicavel{ cursor:pointer; }
+  .legenda-item.clicavel:hover{ color:var(--text); }
+  .legenda-item.clicavel:hover .legenda-ponto{ filter:brightness(1.2); }
+  .legenda-ponto{
+    width:10px; height:10px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .legenda-nome{ flex:1; }
+  .legenda-valor{ font-family: var(--font-data); color:var(--text); font-weight:600; }
+  @media (max-width:520px){
+    .grafico-pizza-wrap{ flex-direction:column; align-items:flex-start; }
+  }
+
   .pagina-header{
     display:flex;
     align-items:center;
@@ -710,29 +754,19 @@
 
         <div class="cartao-grafico">
           <div class="rotulo">Apoio de cópia, quadrilha e monitoramento</div>
-          <div class="grafico-barras">
-            <div class="grafico-coluna">
-              <div class="grafico-valor" id="grafico-valor-apoio">0</div>
-              <div class="grafico-barra apoio-copia" id="grafico-barra-apoio" style="height:4px;"></div>
-              <div class="grafico-rotulo">Apoio de cópia</div>
-            </div>
-            <div class="grafico-coluna">
-              <div class="grafico-valor" id="grafico-valor-quadrilha">0</div>
-              <div class="grafico-barra quadrilha" id="grafico-barra-quadrilha" style="height:4px;"></div>
-              <div class="grafico-rotulo">Quadrilha</div>
-            </div>
-            <div class="grafico-coluna">
-              <div class="grafico-valor" id="grafico-valor-monitoramento">0</div>
-              <div class="grafico-barra monitoramento" id="grafico-barra-monitoramento" style="height:4px;"></div>
-              <div class="grafico-rotulo">Monitoramento</div>
-            </div>
+          <div class="grafico-pizza-wrap">
+            <svg class="grafico-pizza" id="pizza-indicadores" viewBox="0 0 120 120" role="img" aria-label="Distribuição de apoio de cópia, quadrilha e monitoramento"></svg>
+            <div class="grafico-legenda" id="legenda-indicadores"></div>
           </div>
         </div>
       </div>
 
       <div class="cartao-grafico-regionais">
         <div class="rotulo">Ocorrências por regional</div>
-        <div class="grafico-barras-regionais" id="grafico-regionais"></div>
+        <div class="grafico-pizza-wrap">
+          <svg class="grafico-pizza" id="pizza-regionais" viewBox="0 0 120 120" role="img" aria-label="Distribuição de ocorrências por regional"></svg>
+          <div class="grafico-legenda" id="legenda-regionais"></div>
+        </div>
       </div>
 
       <form id="form-ocorrencia">
@@ -746,9 +780,8 @@
         </div>
         <div>
           <label for="loja">Loja</label>
-          <select id="loja" required>
-            <option value="" disabled selected>Selecione a loja...</option>
-          </select>
+          <input type="text" id="loja" list="lista-lojas" placeholder="Digite o código (ex: CT06)" autocomplete="off" required />
+          <datalist id="lista-lojas"></datalist>
         </div>
         <div>
           <label for="regional">Regional</label>
@@ -901,24 +934,24 @@
     });
   });
 
-  function popularSelectLojas(){
-    const select = $("#loja");
+  function popularListaLojas(){
+    const datalist = $("#lista-lojas");
     REGIONAIS.forEach((r) => {
-      const grupo = document.createElement("optgroup");
-      grupo.label = r.nome;
       r.lojas.forEach((codigo) => {
         const opt = document.createElement("option");
         opt.value = codigo;
-        opt.textContent = codigo;
-        grupo.appendChild(opt);
+        opt.label = r.nome;
+        datalist.appendChild(opt);
       });
-      select.appendChild(grupo);
     });
   }
-  popularSelectLojas();
+  popularListaLojas();
 
-  $("#loja").addEventListener("change", () => {
-    const info = MAPA_LOJAS[$("#loja").value];
+  $("#loja").addEventListener("input", (e) => {
+    const posicaoCursor = e.target.selectionStart;
+    e.target.value = e.target.value.toUpperCase();
+    e.target.setSelectionRange(posicaoCursor, posicaoCursor);
+    const info = MAPA_LOJAS[e.target.value.trim()];
     $("#regional").value = info ? info.regional : "";
   });
 
@@ -1311,30 +1344,57 @@
     renderizarGraficoRegionais();
   }
 
+  // ---------- Gráfico de pizza (rosca) reutilizável, sem dependências ----------
+  function criarDonut(svgEl, dados, corFn){
+    const total = dados.reduce((s, d) => s + d.valor, 0);
+    const R = 50, C = 2 * Math.PI * R, ESPESSURA = 18;
+    let acumulado = 0;
+    let partes = `<circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--line)" stroke-width="${ESPESSURA}"></circle>`;
+
+    if(total > 0){
+      dados.forEach((d, i) => {
+        if(d.valor <= 0) return;
+        const comprimento = (d.valor / total) * C;
+        partes += `<circle cx="60" cy="60" r="${R}" fill="none" stroke="${corFn(d, i)}" stroke-width="${ESPESSURA}" stroke-dasharray="${comprimento} ${C}" stroke-dashoffset="${-acumulado}" transform="rotate(-90 60 60)"></circle>`;
+        acumulado += comprimento;
+      });
+    }
+
+    partes += `
+      <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" font-family="var(--font-data)">${total}</text>
+      <text x="60" y="74" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="var(--font-body)">total</text>
+    `;
+    svgEl.innerHTML = partes;
+  }
+
+  function renderizarLegenda(container, dados, cores, opcoes = {}){
+    container.innerHTML = dados.map((d, i) => `
+      <div class="legenda-item ${opcoes.clicavel ? "clicavel" : ""}" data-nome="${escapeHtml(d.nome)}">
+        <span class="legenda-ponto" style="background:${cores[i % cores.length]}"></span>
+        <span class="legenda-nome">${escapeHtml(d.nome)}</span>
+        <span class="legenda-valor">${d.valor}</span>
+      </div>
+    `).join("");
+
+    if(opcoes.clicavel){
+      container.querySelectorAll(".legenda-item").forEach((el) => {
+        el.addEventListener("click", () => opcoes.onClick(el.dataset.nome));
+      });
+    }
+  }
+
   function renderizarGraficoRegionais(){
-    const container = $("#grafico-regionais");
     const grupos = agruparPorRegional(ocorrencias);
-    const maior = Math.max(...grupos.map((g) => g.total), 1);
-    const ALTURA_MAX = 120;
+    const dados = grupos.map((g) => ({ nome: g.nome, valor: g.total }));
+    const cores = ["var(--amber)", "var(--focus)", "var(--green)", "var(--red)"];
 
-    container.innerHTML = grupos.map((g, i) => {
-      const altura = g.total === 0 ? 4 : Math.max(4, Math.round((g.total / maior) * ALTURA_MAX));
-      const cor = `cor-${(i % 4) + 1}`;
-      return `
-        <button type="button" class="grafico-coluna-regional" data-regional="${escapeHtml(g.nome)}">
-          <div class="grafico-valor">${g.total}</div>
-          <div class="grafico-barra ${cor}" style="height:${altura}px;"></div>
-          <div class="grafico-rotulo">${escapeHtml(g.nome)}</div>
-        </button>
-      `;
-    }).join("");
-
-    container.querySelectorAll(".grafico-coluna-regional").forEach((col) => {
-      col.addEventListener("click", () => {
-        const nome = col.dataset.regional;
+    criarDonut($("#pizza-regionais"), dados, (d, i) => cores[i % cores.length]);
+    renderizarLegenda($("#legenda-regionais"), dados, cores, {
+      clicavel: true,
+      onClick: (nome) => {
         if(nome === "Sem regional definida") return;
         irParaLojas(nome);
-      });
+      },
     });
   }
 
@@ -1342,20 +1402,16 @@
     const qtdApoio = ocorrencias.filter((o) => o.apoioCopia).length;
     const qtdQuadrilha = ocorrencias.filter((o) => o.quadrilha).length;
     const qtdMonitoramento = ocorrencias.filter((o) => o.monitoramento).length;
-    const maior = Math.max(qtdApoio, qtdQuadrilha, qtdMonitoramento, 1);
-    const ALTURA_MAX = 120;
 
-    const partes = [
-      { valor: qtdApoio, elValor: "#grafico-valor-apoio", elBarra: "#grafico-barra-apoio" },
-      { valor: qtdQuadrilha, elValor: "#grafico-valor-quadrilha", elBarra: "#grafico-barra-quadrilha" },
-      { valor: qtdMonitoramento, elValor: "#grafico-valor-monitoramento", elBarra: "#grafico-barra-monitoramento" },
+    const dados = [
+      { nome: "Apoio de cópia", valor: qtdApoio },
+      { nome: "Quadrilha", valor: qtdQuadrilha },
+      { nome: "Monitoramento", valor: qtdMonitoramento },
     ];
+    const cores = ["var(--amber)", "var(--red)", "var(--green)"];
 
-    partes.forEach((p) => {
-      $(p.elValor).textContent = p.valor;
-      const altura = p.valor === 0 ? 4 : Math.max(4, Math.round((p.valor / maior) * ALTURA_MAX));
-      $(p.elBarra).style.height = `${altura}px`;
-    });
+    criarDonut($("#pizza-indicadores"), dados, (d, i) => cores[i]);
+    renderizarLegenda($("#legenda-indicadores"), dados, cores);
   }
 
   function obterFiltros(){
