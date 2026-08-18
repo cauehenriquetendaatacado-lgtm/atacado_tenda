@@ -178,6 +178,59 @@
   .checkbox-linha input{ width:auto; }
   .checkbox-linha label{ margin:0; color:var(--text); font-size:0.9rem; }
 
+  /* Botões de seleção (toggle) — substituem os checkboxes de quadrilha/inibida/apoio/monitoramento */
+  .campo-toggle{ position:relative; align-self:end; }
+  .toggle-check{
+    position:absolute;
+    width:1px; height:1px;
+    padding:0; margin:0;
+    overflow:hidden;
+    clip:rect(0 0 0 0);
+    white-space:nowrap;
+    border:0;
+  }
+  .toggle-botao{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:9px 12px;
+    border-radius:20px;
+    font-size:0.86rem;
+    font-weight:500;
+    cursor:pointer;
+    user-select:none;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  }
+  .toggle-botao:hover{ border-color:var(--muted); }
+  .toggle-check:focus-visible + .toggle-botao{ outline:2px solid var(--focus); outline-offset:2px; }
+  .toggle-marca{
+    flex-shrink:0;
+    width:14px; height:14px;
+    border-radius:50%;
+    border:1.5px solid var(--line);
+    position:relative;
+    transition: border-color 0.15s ease;
+  }
+  .toggle-marca::after{
+    content:"";
+    position:absolute;
+    inset:3px;
+    border-radius:50%;
+    background:transparent;
+    transition: background 0.15s ease;
+  }
+  .toggle-check:checked + .toggle-botao{ background:var(--panel-2); color:var(--text); }
+  .toggle-check:checked + .toggle-botao .toggle-marca::after{ background:currentColor; }
+  /* cor por significado, igual à já usada nas tags e no gráfico de apoio/quadrilha/monitoramento */
+  .toggle-check:checked + .toggle-quadrilha{ border-color:var(--red); color:var(--red); }
+  .toggle-check:checked + .toggle-inibido{ border-color:var(--green); color:var(--green); }
+  .toggle-check:checked + .toggle-apoio{ border-color:var(--amber); color:var(--amber); }
+  .toggle-check:checked + .toggle-monitoramento{ border-color:var(--green); color:var(--green); }
+
   button{
     background:var(--amber);
     color:#1b1500;
@@ -693,8 +746,9 @@
         </div>
         <div>
           <label for="loja">Loja</label>
-          <input type="text" id="loja" list="lista-lojas" placeholder="Digite o código da loja (ex: CT09)" required autocomplete="off" style="text-transform:uppercase" />
-          <datalist id="lista-lojas"></datalist>
+          <select id="loja" required>
+            <option value="" disabled selected>Selecione a loja...</option>
+          </select>
         </div>
         <div>
           <label for="regional">Regional</label>
@@ -713,21 +767,33 @@
           <input type="file" id="foto" accept="image/*" />
           <img id="foto-preview" style="display:none; max-width:160px; border-radius:8px; margin-top:8px;" />
         </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="quadrilha" />
-          <label for="quadrilha">Envolveu quadrilha</label>
+        <div class="campo-toggle">
+          <input type="checkbox" id="quadrilha" class="toggle-check" />
+          <label for="quadrilha" class="toggle-botao toggle-quadrilha">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Envolveu quadrilha
+          </label>
         </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="inibido" />
-          <label for="inibido">Ocorrência foi inibida</label>
+        <div class="campo-toggle">
+          <input type="checkbox" id="inibido" class="toggle-check" />
+          <label for="inibido" class="toggle-botao toggle-inibido">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Ocorrência foi inibida
+          </label>
         </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="apoioCopia" />
-          <label for="apoioCopia">Teve apoio de cópia</label>
+        <div class="campo-toggle">
+          <input type="checkbox" id="apoioCopia" class="toggle-check" />
+          <label for="apoioCopia" class="toggle-botao toggle-apoio">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Teve apoio de cópia
+          </label>
         </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="monitoramento" />
-          <label for="monitoramento">Teve monitoramento</label>
+        <div class="campo-toggle">
+          <input type="checkbox" id="monitoramento" class="toggle-check" />
+          <label for="monitoramento" class="toggle-botao toggle-monitoramento">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Teve monitoramento
+          </label>
         </div>
         <div class="full">
           <button type="submit">Registrar ocorrência</button>
@@ -836,22 +902,23 @@
   });
 
   function popularSelectLojas(){
-    const lista = $("#lista-lojas");
+    const select = $("#loja");
     REGIONAIS.forEach((r) => {
+      const grupo = document.createElement("optgroup");
+      grupo.label = r.nome;
       r.lojas.forEach((codigo) => {
         const opt = document.createElement("option");
         opt.value = codigo;
-        opt.label = r.nome;
-        lista.appendChild(opt);
+        opt.textContent = codigo;
+        grupo.appendChild(opt);
       });
+      select.appendChild(grupo);
     });
   }
   popularSelectLojas();
 
-  $("#loja").addEventListener("input", (e) => {
-    const valor = e.target.value.toUpperCase();
-    if(e.target.value !== valor) e.target.value = valor;
-    const info = MAPA_LOJAS[valor.trim()];
+  $("#loja").addEventListener("change", () => {
+    const info = MAPA_LOJAS[$("#loja").value];
     $("#regional").value = info ? info.regional : "";
   });
 
