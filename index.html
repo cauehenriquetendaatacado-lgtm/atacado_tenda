@@ -500,6 +500,17 @@
     gap:22px;
     flex-wrap:wrap;
   }
+  .grafico-regionais-linha{
+    display:flex;
+    align-items:center;
+    gap:28px;
+    flex-wrap:wrap;
+  }
+  .grafico-regionais-linha .grafico-pizza-wrap{ flex:1 1 220px; }
+  .grafico-regionais-linha .grafico-barras-regionais{ flex:1 1 220px; }
+  @media (max-width:720px){
+    .grafico-regionais-linha{ flex-direction:column; align-items:stretch; }
+  }
   .grafico-pizza{
     width:140px;
     height:140px;
@@ -763,9 +774,12 @@
 
       <div class="cartao-grafico-regionais">
         <div class="rotulo">Ocorrências por regional</div>
-        <div class="grafico-pizza-wrap">
-          <svg class="grafico-pizza" id="pizza-regionais" viewBox="0 0 120 120" role="img" aria-label="Distribuição de ocorrências por regional"></svg>
-          <div class="grafico-legenda" id="legenda-regionais"></div>
+        <div class="grafico-regionais-linha">
+          <div class="grafico-pizza-wrap">
+            <svg class="grafico-pizza" id="pizza-regionais" viewBox="0 0 120 120" role="img" aria-label="Distribuição de ocorrências por regional"></svg>
+            <div class="grafico-legenda" id="legenda-regionais"></div>
+          </div>
+          <div class="grafico-barras-regionais" id="colunas-regionais"></div>
         </div>
       </div>
 
@@ -1395,6 +1409,33 @@
         if(nome === "Sem regional definida") return;
         irParaLojas(nome);
       },
+    });
+    renderizarColunasRegionais(grupos);
+  }
+
+  function renderizarColunasRegionais(grupos){
+    const container = $("#colunas-regionais");
+    const maior = Math.max(...grupos.map((g) => g.total), 1);
+    const ALTURA_MAX = 120;
+
+    container.innerHTML = grupos.map((g, i) => {
+      const altura = g.total === 0 ? 4 : Math.max(4, Math.round((g.total / maior) * ALTURA_MAX));
+      const cor = `cor-${(i % 4) + 1}`;
+      return `
+        <button type="button" class="grafico-coluna-regional" data-regional="${escapeHtml(g.nome)}">
+          <div class="grafico-valor">${g.total}</div>
+          <div class="grafico-barra ${cor}" style="height:${altura}px;"></div>
+          <div class="grafico-rotulo">${escapeHtml(g.nome)}</div>
+        </button>
+      `;
+    }).join("");
+
+    container.querySelectorAll(".grafico-coluna-regional").forEach((col) => {
+      col.addEventListener("click", () => {
+        const nome = col.dataset.regional;
+        if(nome === "Sem regional definida") return;
+        irParaLojas(nome);
+      });
     });
   }
 
