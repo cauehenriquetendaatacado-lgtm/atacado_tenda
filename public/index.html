@@ -178,6 +178,59 @@
   .checkbox-linha input{ width:auto; }
   .checkbox-linha label{ margin:0; color:var(--text); font-size:0.9rem; }
 
+  /* Botões de seleção (toggle) — substituem os checkboxes de quadrilha/inibida/apoio/monitoramento */
+  .campo-toggle{ position:relative; align-self:end; }
+  .toggle-check{
+    position:absolute;
+    width:1px; height:1px;
+    padding:0; margin:0;
+    overflow:hidden;
+    clip:rect(0 0 0 0);
+    white-space:nowrap;
+    border:0;
+  }
+  .toggle-botao{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:9px 12px;
+    border-radius:20px;
+    font-size:0.86rem;
+    font-weight:500;
+    cursor:pointer;
+    user-select:none;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  }
+  .toggle-botao:hover{ border-color:var(--muted); }
+  .toggle-check:focus-visible + .toggle-botao{ outline:2px solid var(--focus); outline-offset:2px; }
+  .toggle-marca{
+    flex-shrink:0;
+    width:14px; height:14px;
+    border-radius:50%;
+    border:1.5px solid var(--line);
+    position:relative;
+    transition: border-color 0.15s ease;
+  }
+  .toggle-marca::after{
+    content:"";
+    position:absolute;
+    inset:3px;
+    border-radius:50%;
+    background:transparent;
+    transition: background 0.15s ease;
+  }
+  .toggle-check:checked + .toggle-botao{ background:var(--panel-2); color:var(--text); }
+  .toggle-check:checked + .toggle-botao .toggle-marca::after{ background:currentColor; }
+  /* cor por significado, igual à já usada nas tags e no gráfico de apoio/quadrilha/monitoramento */
+  .toggle-check:checked + .toggle-quadrilha{ border-color:var(--red); color:var(--red); }
+  .toggle-check:checked + .toggle-inibido{ border-color:var(--green); color:var(--green); }
+  .toggle-check:checked + .toggle-apoio{ border-color:var(--amber); color:var(--amber); }
+  .toggle-check:checked + .toggle-monitoramento{ border-color:var(--green); color:var(--green); }
+
   button{
     background:var(--amber);
     color:#1b1500;
@@ -361,143 +414,85 @@
     background:var(--panel);
     border:1px solid var(--line);
     border-radius:6px;
-    padding:18px 20px;
+    padding:16px 18px;
   }
-  .cartao-grafico .cabecalho-grafico,
-  .cartao-grafico-regionais .cabecalho-grafico{
+  .cartao-grafico .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; margin-bottom:14px; }
+  .grafico-barras{
     display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    gap:10px;
-    margin-bottom:16px;
-    padding-bottom:12px;
-    border-bottom:1px solid var(--line);
+    align-items:flex-end;
+    justify-content:space-around;
+    gap:14px;
+    height:150px;
   }
-  .cartao-grafico .rotulo,
-  .cartao-grafico-regionais .rotulo{
-    color:var(--muted);
-    font-size:0.74rem;
-    font-weight:600;
-    text-transform:uppercase;
-    letter-spacing:0.09em;
-  }
-  .cartao-grafico .total-grafico,
-  .cartao-grafico-regionais .total-grafico{
-    font-family: var(--font-data);
-    font-size:0.76rem;
-    color:var(--muted);
-    white-space:nowrap;
-  }
-  .cartao-grafico .total-grafico strong,
-  .cartao-grafico-regionais .total-grafico strong{
-    color:var(--text);
-    font-weight:600;
-  }
-
-  .grafico-lista{
+  .grafico-coluna{
     display:flex;
     flex-direction:column;
-    gap:16px;
-  }
-  .grafico-linha{
-    display:grid;
-    grid-template-columns: 122px 1fr auto;
     align-items:center;
-    gap:12px;
+    justify-content:flex-end;
+    height:100%;
+    flex:1;
   }
-  .grafico-linha .rotulo-linha{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-size:0.8rem;
-    color:var(--text);
-    font-weight:500;
-    line-height:1.25;
-  }
-  .grafico-linha .indicador-cor{
-    width:8px;
-    height:8px;
-    border-radius:2px;
-    flex-shrink:0;
-  }
-  .grafico-trilha{
-    position:relative;
-    height:9px;
-    background:var(--panel-2);
-    border-radius:3px;
-    overflow:hidden;
-  }
-  .grafico-preenchimento{
-    position:absolute;
-    top:0; left:0; bottom:0;
-    width:0%;
-    border-radius:3px;
-    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .grafico-preenchimento.apoio-copia{ background:var(--amber); }
-  .grafico-preenchimento.quadrilha{ background:var(--red); }
-  .grafico-preenchimento.monitoramento{ background:var(--green); }
-  .grafico-preenchimento.cor-1{ background:var(--amber); }
-  .grafico-preenchimento.cor-2{ background:var(--focus); }
-  .grafico-preenchimento.cor-3{ background:var(--green); }
-  .grafico-preenchimento.cor-4{ background:#c98a3f; }
-  .indicador-cor.apoio-copia{ background:var(--amber); }
-  .indicador-cor.quadrilha{ background:var(--red); }
-  .indicador-cor.monitoramento{ background:var(--green); }
-  .indicador-cor.cor-1{ background:var(--amber); }
-  .indicador-cor.cor-2{ background:var(--focus); }
-  .indicador-cor.cor-3{ background:var(--green); }
-  .indicador-cor.cor-4{ background:#c98a3f; }
-
-  .grafico-linha .valores-linha{
-    display:flex;
-    align-items:baseline;
-    gap:8px;
-    justify-self:end;
+  .grafico-valor{
     font-family: var(--font-data);
-  }
-  .grafico-linha .valor-linha{
-    font-size:0.92rem;
+    font-size:1.05rem;
     font-weight:600;
     color:var(--text);
-    min-width:22px;
-    text-align:right;
+    margin-bottom:6px;
   }
-  .grafico-linha .percentual-linha{
+  .grafico-barra{
+    width:100%;
+    max-width:52px;
+    border-radius:4px 4px 0 0;
+    min-height:4px;
+    transition: height 0.25s ease;
+  }
+  .grafico-barra.apoio-copia{ background:var(--amber); }
+  .grafico-barra.quadrilha{ background:var(--red); }
+  .grafico-barra.monitoramento{ background:var(--green); }
+  .grafico-rotulo{
+    margin-top:8px;
     font-size:0.72rem;
     color:var(--muted);
-    min-width:40px;
-    text-align:right;
-  }
-
-  .linha-grafico-regional{
-    background:none;
-    border:none;
-    padding:0;
-    width:100%;
-    cursor:pointer;
-    font-family: var(--font-body);
-    transition: opacity 0.15s ease;
-  }
-  .linha-grafico-regional:hover{ opacity:0.82; }
-  .linha-grafico-regional:hover .grafico-preenchimento{ filter:brightness(1.15); }
-  .linha-grafico-regional.ativo .grafico-trilha{
-    box-shadow:0 0 0 1px var(--focus);
-  }
-  .linha-grafico-regional.ativo .rotulo-linha{ color:var(--focus); }
-
-  @media (max-width: 480px){
-    .grafico-linha{ grid-template-columns: 92px 1fr auto; }
-    .grafico-linha .percentual-linha{ display:none; }
+    text-align:center;
+    line-height:1.3;
   }
 
   .cartao-grafico-regionais{
     background:var(--panel);
     border:1px solid var(--line);
     border-radius:6px;
-    padding:18px 20px;
+    padding:16px 18px;
     margin-bottom:24px;
   }
+  .cartao-grafico-regionais .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; margin-bottom:14px; }
+  .grafico-barras-regionais{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-around;
+    gap:10px;
+    height:150px;
+  }
+  .grafico-coluna-regional{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height:100%;
+    flex:1;
+    cursor:pointer;
+    background:none;
+    border:none;
+    padding:0;
+    font-family: var(--font-body);
+  }
+  .grafico-coluna-regional .grafico-barra{
+    max-width:60px;
+  }
+  .grafico-coluna-regional:hover .grafico-rotulo{ color:var(--text); }
+  .grafico-barra.cor-1{ background:var(--amber); }
+  .grafico-barra.cor-2{ background:var(--focus); }
+  .grafico-barra.cor-3{ background:var(--green); }
+  .grafico-barra.cor-4{ background:var(--red); }
 
   .pagina-header{
     display:flex;
@@ -714,45 +709,30 @@
         </div>
 
         <div class="cartao-grafico">
-          <div class="cabecalho-grafico">
-            <div class="rotulo">Indicadores das ocorrências</div>
-            <div class="total-grafico"><strong id="grafico-total-ocorrencias">0</strong> no total</div>
-          </div>
-          <div class="grafico-lista">
-            <div class="grafico-linha">
-              <div class="rotulo-linha"><span class="indicador-cor apoio-copia"></span>Apoio de cópia</div>
-              <div class="grafico-trilha"><div class="grafico-preenchimento apoio-copia" id="grafico-barra-apoio" style="width:0%;"></div></div>
-              <div class="valores-linha">
-                <span class="valor-linha" id="grafico-valor-apoio">0</span>
-                <span class="percentual-linha" id="grafico-pct-apoio">0%</span>
-              </div>
+          <div class="rotulo">Apoio de cópia, quadrilha e monitoramento</div>
+          <div class="grafico-barras">
+            <div class="grafico-coluna">
+              <div class="grafico-valor" id="grafico-valor-apoio">0</div>
+              <div class="grafico-barra apoio-copia" id="grafico-barra-apoio" style="height:4px;"></div>
+              <div class="grafico-rotulo">Apoio de cópia</div>
             </div>
-            <div class="grafico-linha">
-              <div class="rotulo-linha"><span class="indicador-cor quadrilha"></span>Quadrilha</div>
-              <div class="grafico-trilha"><div class="grafico-preenchimento quadrilha" id="grafico-barra-quadrilha" style="width:0%;"></div></div>
-              <div class="valores-linha">
-                <span class="valor-linha" id="grafico-valor-quadrilha">0</span>
-                <span class="percentual-linha" id="grafico-pct-quadrilha">0%</span>
-              </div>
+            <div class="grafico-coluna">
+              <div class="grafico-valor" id="grafico-valor-quadrilha">0</div>
+              <div class="grafico-barra quadrilha" id="grafico-barra-quadrilha" style="height:4px;"></div>
+              <div class="grafico-rotulo">Quadrilha</div>
             </div>
-            <div class="grafico-linha">
-              <div class="rotulo-linha"><span class="indicador-cor monitoramento"></span>Monitoramento</div>
-              <div class="grafico-trilha"><div class="grafico-preenchimento monitoramento" id="grafico-barra-monitoramento" style="width:0%;"></div></div>
-              <div class="valores-linha">
-                <span class="valor-linha" id="grafico-valor-monitoramento">0</span>
-                <span class="percentual-linha" id="grafico-pct-monitoramento">0%</span>
-              </div>
+            <div class="grafico-coluna">
+              <div class="grafico-valor" id="grafico-valor-monitoramento">0</div>
+              <div class="grafico-barra monitoramento" id="grafico-barra-monitoramento" style="height:4px;"></div>
+              <div class="grafico-rotulo">Monitoramento</div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="cartao-grafico-regionais">
-        <div class="cabecalho-grafico">
-          <div class="rotulo">Ocorrências por regional</div>
-          <div class="total-grafico"><strong id="grafico-total-regionais">0</strong> no total</div>
-        </div>
-        <div class="grafico-lista" id="grafico-regionais"></div>
+        <div class="rotulo">Ocorrências por regional</div>
+        <div class="grafico-barras-regionais" id="grafico-regionais"></div>
       </div>
 
       <form id="form-ocorrencia">
@@ -787,21 +767,33 @@
           <input type="file" id="foto" accept="image/*" />
           <img id="foto-preview" style="display:none; max-width:160px; border-radius:8px; margin-top:8px;" />
         </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="quadrilha" />
-          <label for="quadrilha">Envolveu quadrilha</label>
+        <div class="campo-toggle">
+          <input type="checkbox" id="quadrilha" class="toggle-check" />
+          <label for="quadrilha" class="toggle-botao toggle-quadrilha">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Envolveu quadrilha
+          </label>
         </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="inibido" />
-          <label for="inibido">Ocorrência foi inibida</label>
+        <div class="campo-toggle">
+          <input type="checkbox" id="inibido" class="toggle-check" />
+          <label for="inibido" class="toggle-botao toggle-inibido">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Ocorrência foi inibida
+          </label>
         </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="apoioCopia" />
-          <label for="apoioCopia">Teve apoio de cópia</label>
+        <div class="campo-toggle">
+          <input type="checkbox" id="apoioCopia" class="toggle-check" />
+          <label for="apoioCopia" class="toggle-botao toggle-apoio">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Teve apoio de cópia
+          </label>
         </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="monitoramento" />
-          <label for="monitoramento">Teve monitoramento</label>
+        <div class="campo-toggle">
+          <input type="checkbox" id="monitoramento" class="toggle-check" />
+          <label for="monitoramento" class="toggle-botao toggle-monitoramento">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Teve monitoramento
+          </label>
         </div>
         <div class="full">
           <button type="submit">Registrar ocorrência</button>
@@ -1321,31 +1313,23 @@
 
   function renderizarGraficoRegionais(){
     const container = $("#grafico-regionais");
-    const grupos = agruparPorRegional(ocorrencias).slice().sort((a, b) => b.total - a.total);
-    const totalGeral = grupos.reduce((s, g) => s + g.total, 0);
+    const grupos = agruparPorRegional(ocorrencias);
     const maior = Math.max(...grupos.map((g) => g.total), 1);
-
-    $("#grafico-total-regionais").textContent = totalGeral;
+    const ALTURA_MAX = 120;
 
     container.innerHTML = grupos.map((g, i) => {
-      const largura = g.total === 0 ? 0 : Math.max(3, Math.round((g.total / maior) * 100));
-      const pct = totalGeral === 0 ? 0 : Math.round((g.total / totalGeral) * 100);
+      const altura = g.total === 0 ? 4 : Math.max(4, Math.round((g.total / maior) * ALTURA_MAX));
       const cor = `cor-${(i % 4) + 1}`;
       return `
-        <button type="button" class="linha-grafico-regional" data-regional="${escapeHtml(g.nome)}">
-          <div class="grafico-linha">
-            <div class="rotulo-linha"><span class="indicador-cor ${cor}"></span>${escapeHtml(g.nome)}</div>
-            <div class="grafico-trilha"><div class="grafico-preenchimento ${cor}" style="width:${largura}%;"></div></div>
-            <div class="valores-linha">
-              <span class="valor-linha">${g.total}</span>
-              <span class="percentual-linha">${pct}%</span>
-            </div>
-          </div>
+        <button type="button" class="grafico-coluna-regional" data-regional="${escapeHtml(g.nome)}">
+          <div class="grafico-valor">${g.total}</div>
+          <div class="grafico-barra ${cor}" style="height:${altura}px;"></div>
+          <div class="grafico-rotulo">${escapeHtml(g.nome)}</div>
         </button>
       `;
     }).join("");
 
-    container.querySelectorAll(".linha-grafico-regional").forEach((col) => {
+    container.querySelectorAll(".grafico-coluna-regional").forEach((col) => {
       col.addEventListener("click", () => {
         const nome = col.dataset.regional;
         if(nome === "Sem regional definida") return;
@@ -1355,24 +1339,22 @@
   }
 
   function atualizarGrafico(){
-    const totalOcorrencias = ocorrencias.length;
     const qtdApoio = ocorrencias.filter((o) => o.apoioCopia).length;
     const qtdQuadrilha = ocorrencias.filter((o) => o.quadrilha).length;
     const qtdMonitoramento = ocorrencias.filter((o) => o.monitoramento).length;
-
-    $("#grafico-total-ocorrencias").textContent = totalOcorrencias;
+    const maior = Math.max(qtdApoio, qtdQuadrilha, qtdMonitoramento, 1);
+    const ALTURA_MAX = 120;
 
     const partes = [
-      { valor: qtdApoio, elValor: "#grafico-valor-apoio", elBarra: "#grafico-barra-apoio", elPct: "#grafico-pct-apoio" },
-      { valor: qtdQuadrilha, elValor: "#grafico-valor-quadrilha", elBarra: "#grafico-barra-quadrilha", elPct: "#grafico-pct-quadrilha" },
-      { valor: qtdMonitoramento, elValor: "#grafico-valor-monitoramento", elBarra: "#grafico-barra-monitoramento", elPct: "#grafico-pct-monitoramento" },
+      { valor: qtdApoio, elValor: "#grafico-valor-apoio", elBarra: "#grafico-barra-apoio" },
+      { valor: qtdQuadrilha, elValor: "#grafico-valor-quadrilha", elBarra: "#grafico-barra-quadrilha" },
+      { valor: qtdMonitoramento, elValor: "#grafico-valor-monitoramento", elBarra: "#grafico-barra-monitoramento" },
     ];
 
     partes.forEach((p) => {
-      const pct = totalOcorrencias === 0 ? 0 : Math.round((p.valor / totalOcorrencias) * 100);
       $(p.elValor).textContent = p.valor;
-      $(p.elPct).textContent = `${pct}%`;
-      $(p.elBarra).style.width = `${pct}%`;
+      const altura = p.valor === 0 ? 4 : Math.max(4, Math.round((p.valor / maior) * ALTURA_MAX));
+      $(p.elBarra).style.height = `${altura}px`;
     });
   }
 
