@@ -3,11 +3,6 @@ const fs = require("fs");
 const path = require("path");
 const { Pool, types } = require("pg");
 
-// O driver do Postgres devolve colunas "numeric" como texto (para não perder
-// precisão). Isso fazia o valor recuperado virar string e quebrar as somas em
-// reais no painel (ex: 0 + "1935.00" virava o texto "01935.00" em vez de somar).
-// Aqui forçamos a conversão para número sempre que o Postgres devolver um
-// campo numeric (OID 1700).
 types.setTypeParser(1700, (val) => (val === null ? null : parseFloat(val)));
 
 const app = express();
@@ -48,31 +43,27 @@ async function iniciarBanco() {
       "criadoEm" timestamptz default now()
     )
   `);
-  await pool.query(`
-    alter table ocorrencias add column if not exists regional text default ''
-  `);
-  await pool.query(`
-    alter table ocorrencias add column if not exists nome text default ''
-  `);
-  await pool.query(`
-    alter table ocorrencias add column if not exists inibido boolean default false
-  `);
-  await pool.query(`
-    alter table ocorrencias add column if not exists "apoioCopia" boolean default false
-  `);
-  await pool.query(`
-    alter table ocorrencias add column if not exists monitoramento boolean default false
-  `);
-  await pool.query(`
-    alter table ocorrencias add column if not exists foto text
-  `);
+  await pool.query(`alter table ocorrencias add column if not exists regional text default ''`);
+  await pool.query(`alter table ocorrencias add column if not exists nome text default ''`);
+  await pool.query(`alter table ocorrencias add column if not exists inibido boolean default false`);
+  await pool.query(`alter table ocorrencias add column if not exists "apoioCopia" boolean default false`);
+  await pool.query(`alter table ocorrencias add column if not exists monitoramento boolean default false`);
+  await pool.query(`alter table ocorrencias add column if not exists foto text`);
   console.log("Armazenamento: Postgres (persistente)");
+
+  // DIAGNOSTICO: mostra nos logs, na hora que o servidor sobe, qual banco esta sendo usado de verdade.
+  try {
+    const host = (DATABASE_URL.split("@")[1] || "").split("/")[0];
+    const r = await pool.query("select current_database() as db, count(*)::int as total from ocorrencias");
+    console.log(`[DIAGNOSTICO] host=${host} banco=${r.rows[0].db} total_ocorrencias=${r.rows[0].total}`);
+  } catch (e) {
+    console.log("[DIAGNOSTICO] erro ao consultar:", e.message);
+  }
 }
 
 app.use(express.json({ limit: "8mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// ---------- Fallback local (arquivo JSON) ----------
 function lerDadosArquivo() {
   try {
     const raw = fs.readFileSync(DB_FILE, "utf-8");
@@ -86,23 +77,12 @@ function salvarDadosArquivo(dados) {
   fs.writeFileSync(DB_FILE, JSON.stringify(dados, null, 2));
 }
 
-// ---------- Camada de dados (Postgres ou arquivo) ----------
 async function listarOcorrencias() {
   if (USANDO_POSTGRES) {
-    const { rows } = await pool.query(
-      'select * from ocorrencias order by "criadoEm" desc'
-    );
-    // Segunda camada de proteção: garante numero mesmo se o typeParser
-    // acima não pegar (ex: coluna vindo de outro tipo/consulta).
-    return rows.map((r) => ({
-      ...r,
-      valorRecuperado: Number(r.valorRecuperado) || 0,
-    }));
+    const { rows } = await pool.query('select * from ocorrencias order by "criadoEm" desc');
+    return rows.map((r) => ({ ...r, valorRecuperado: Number(r.valorRecuperado) || 0 }));
   }
-  return lerDadosArquivo().map((r) => ({
-    ...r,
-    valorRecuperado: Number(r.valorRecuperado) || 0,
-  }));
+  return lerDadosArquivo().map((r) => ({ ...r, valorRecuperado: Number(r.valorRecuperado) || 0 }));
 }
 
 async function criarOcorrencia(campos) {
@@ -126,21 +106,7 @@ async function criarOcorrencia(campos) {
     await pool.query(
       `insert into ocorrencias (id, data, loja, regional, descricao, "valorRecuperado", quadrilha, nome, inibido, "apoioCopia", monitoramento, foto, "criadoEm")
        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
-      [
-        nova.id,
-        nova.data,
-        nova.loja,
-        nova.regional,
-        nova.descricao,
-        nova.valorRecuperado,
-        nova.quadrilha,
-        nova.nome,
-        nova.inibido,
-        nova.apoioCopia,
-        nova.monitoramento,
-        nova.foto,
-        nova.criadoEm,
-      ]
+      [nova.id, nova.data, nova.loja, nova.regional, nova.descricao, nova.valorRecuperado, nova.quadrilha, nova.nome, nova.inibido, nova.apoioCopia, nova.monitoramento, nova.foto, nova.criadoEm]
     );
     return nova;
   }
@@ -161,7 +127,6 @@ async function excluirOcorrencia(id) {
   salvarDadosArquivo(restante);
 }
 
-// ---------- Autenticacao simples por senha compartilhada ----------
 function checarSenha(req, res, next) {
   const senha = req.headers["x-senha"];
   if (senha !== SENHA) {
@@ -194,19 +159,7 @@ app.post("/api/ocorrencias", checarSenha, async (req, res) => {
     return res.status(400).json({ erro: "Preencha nome, data, loja e descricao" });
   }
   try {
-    const nova = await criarOcorrencia({
-      data,
-      loja,
-      regional,
-      descricao,
-      valorRecuperado,
-      quadrilha,
-      nome,
-      inibido,
-      apoioCopia,
-      monitoramento,
-      foto,
-    });
+    const nova = await criarOcorrencia({ data, loja, regional, descricao, valorRecuperado, quadrilha, nome, inibido, apoioCopia, monitoramento, foto });
     res.status(201).json(nova);
   } catch (e) {
     console.error(e);
@@ -221,6 +174,26 @@ app.delete("/api/ocorrencias/:id", checarSenha, async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ erro: "Erro ao excluir" });
+  }
+});
+
+// ROTA TEMPORARIA DE DIAGNOSTICO — remover depois de resolver o problema.
+// Mostra, na hora que voce acessa, exatamente qual banco o servidor esta usando de verdade.
+app.get("/api/debug-db", checarSenha, async (req, res) => {
+  try {
+    const host = USANDO_POSTGRES ? (DATABASE_URL.split("@")[1] || "").split("/")[0] : null;
+    if (!USANDO_POSTGRES) {
+      return res.json({ usandoPostgres: false, mensagem: "Servidor esta usando o arquivo local dados.json, nao Postgres." });
+    }
+    const r = await pool.query("select current_database() as banco, count(*)::int as total from ocorrencias");
+    res.json({
+      usandoPostgres: true,
+      hostConfiguradoNoRender: host,
+      bancoAtual: r.rows[0].banco,
+      totalOcorrenciasAgora: r.rows[0].total,
+    });
+  } catch (e) {
+    res.status(500).json({ erro: e.message });
   }
 });
 
