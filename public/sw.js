@@ -1,4 +1,4 @@
-const CACHE = "tenda-atacado-v2";
+const CACHE = "tenda-atacado-v3";
 const ASSETS = ["/", "/index.html", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
