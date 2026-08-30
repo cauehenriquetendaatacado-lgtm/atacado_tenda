@@ -1,7 +1,7 @@
 {
-  "name": "Painel de Ocorrências — Tenda Atacado",
-  "short_name": "Tenda Atacado",
-  "description": "Painel de monitoramento e prevenção de perdas — Tenda Atacado",
+  "name": "C.H painel de dados",
+  "short_name": "C.H",
+  "description": "C.H painel de dados",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
