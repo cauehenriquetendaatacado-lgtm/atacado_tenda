@@ -483,6 +483,30 @@
   }
   .donut-total{ font-family: var(--font-data); font-size:1.25rem; font-weight:600; color:var(--text); line-height:1.1; }
   .donut-total-rotulo{ font-size:0.6rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+
+  .donut-chart-wrap{ position:relative; flex-shrink:0; }
+  .donut-tooltip{
+    position:absolute;
+    bottom:calc(100% + 10px);
+    left:50%;
+    transform:translateX(-50%);
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:9px 13px;
+    white-space:nowrap;
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity 0.15s ease;
+    z-index:10;
+    box-shadow:0 8px 22px rgba(0,0,0,0.4);
+  }
+  .donut-chart-wrap:hover .donut-tooltip{ opacity:1; visibility:visible; }
+  .donut-tooltip-linha{ display:flex; align-items:center; gap:16px; font-size:0.78rem; color:var(--text); }
+  .donut-tooltip-linha + .donut-tooltip-linha{ margin-top:5px; }
+  .donut-tooltip-linha span{ display:flex; align-items:center; gap:6px; color:var(--muted); }
+  .donut-tooltip-linha strong{ margin-left:auto; font-family: var(--font-data); color:var(--text); font-weight:600; }
   .legenda-grafico{
     display:flex;
     flex-direction:column;
@@ -772,11 +796,14 @@
         <div class="cartao-grafico">
           <div class="rotulo">Apoio de cópia, quadrilha e monitoramento</div>
           <div class="donut-linha">
-            <div class="donut-chart" id="donut-tipos">
-              <div class="donut-centro">
-                <div class="donut-total" id="donut-total-tipos">0</div>
-                <div class="donut-total-rotulo">total</div>
+            <div class="donut-chart-wrap">
+              <div class="donut-chart" id="donut-tipos">
+                <div class="donut-centro">
+                  <div class="donut-total" id="donut-total-tipos">0</div>
+                  <div class="donut-total-rotulo">total</div>
+                </div>
               </div>
+              <div class="donut-tooltip" id="tooltip-tipos"></div>
             </div>
             <div class="legenda-grafico">
               <div class="legenda-item"><span class="legenda-dot cor-apoio"></span>Apoio de cópia<strong id="grafico-valor-apoio">0</strong></div>
@@ -791,11 +818,14 @@
         <div class="rotulo">Ocorrências por regional</div>
         <div class="regional-grafico-linha">
           <div class="donut-linha">
-            <div class="donut-chart" id="donut-regionais">
-              <div class="donut-centro">
-                <div class="donut-total" id="donut-total-regionais">0</div>
-                <div class="donut-total-rotulo">total</div>
+            <div class="donut-chart-wrap">
+              <div class="donut-chart" id="donut-regionais">
+                <div class="donut-centro">
+                  <div class="donut-total" id="donut-total-regionais">0</div>
+                  <div class="donut-total-rotulo">total</div>
+                </div>
               </div>
+              <div class="donut-tooltip" id="tooltip-regionais"></div>
             </div>
             <div class="legenda-grafico" id="legenda-regionais"></div>
           </div>
@@ -1401,6 +1431,10 @@
       <div class="legenda-item"><span class="legenda-dot cor-${(i % 4) + 1}"></span>${escapeHtml(g.nome)}<strong>${g.total}</strong></div>
     `).join("");
 
+    $("#tooltip-regionais").innerHTML = grupos.map((g, i) => `
+      <div class="donut-tooltip-linha"><span><span class="legenda-dot cor-${(i % 4) + 1}"></span>${escapeHtml(g.nome)}</span><strong>${g.total}</strong></div>
+    `).join("");
+
     container.innerHTML = grupos.map((g, i) => {
       const altura = g.total === 0 ? 4 : Math.max(4, Math.round((g.total / maior) * ALTURA_MAX));
       const cor = `cor-${(i % 4) + 1}`;
@@ -1448,6 +1482,12 @@
     $("#grafico-valor-quadrilha").textContent = qtdQuadrilha;
     $("#grafico-valor-monitoramento").textContent = qtdMonitoramento;
     $("#donut-total-tipos").textContent = total;
+
+    $("#tooltip-tipos").innerHTML = `
+      <div class="donut-tooltip-linha"><span><span class="legenda-dot cor-apoio"></span>Apoio de cópia</span><strong>${qtdApoio}</strong></div>
+      <div class="donut-tooltip-linha"><span><span class="legenda-dot cor-quadrilha"></span>Quadrilha</span><strong>${qtdQuadrilha}</strong></div>
+      <div class="donut-tooltip-linha"><span><span class="legenda-dot cor-monitoramento"></span>Monitoramento</span><strong>${qtdMonitoramento}</strong></div>
+    `;
 
     pintarDonut("#donut-tipos", [
       { valor: qtdApoio, cor: "var(--amber)" },
