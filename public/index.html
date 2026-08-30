@@ -178,6 +178,55 @@
   .checkbox-linha input{ width:auto; }
   .checkbox-linha label{ margin:0; color:var(--text); font-size:0.9rem; }
 
+  .grade-pills{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+  }
+  .pill-checkbox{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:12px 18px;
+    cursor:pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .pill-checkbox:hover{ border-color:var(--focus); }
+  .pill-checkbox input{
+    position:absolute;
+    opacity:0;
+    width:0;
+    height:0;
+  }
+  .pill-marcador{
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    border:2px solid var(--muted);
+    flex-shrink:0;
+    position:relative;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .pill-texto{ color:var(--focus); font-size:0.88rem; font-weight:500; }
+  .pill-checkbox.marcado{ border-color:var(--focus); background:var(--panel-2); }
+  .pill-checkbox.marcado .pill-marcador{ border-color:var(--focus); background:var(--focus); }
+  .pill-checkbox.marcado .pill-marcador::after{
+    content:"";
+    position:absolute;
+    top:50%; left:50%;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--bg);
+    transform:translate(-50%,-50%);
+  }
+  @media (max-width:560px){
+    .grade-pills{ grid-template-columns: 1fr; }
+  }
+
   button{
     background:var(--amber);
     color:#1b1500;
@@ -404,6 +453,60 @@
     line-height:1.3;
   }
 
+  .donut-linha{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    flex-wrap:wrap;
+  }
+  .donut-chart{
+    position:relative;
+    width:132px;
+    height:132px;
+    border-radius:50%;
+    flex-shrink:0;
+    background:conic-gradient(var(--line) 0deg 360deg);
+    transition: background 0.25s ease;
+  }
+  .donut-centro{
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:74px;
+    height:74px;
+    border-radius:50%;
+    background:var(--panel);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+  .donut-total{ font-family: var(--font-data); font-size:1.25rem; font-weight:600; color:var(--text); line-height:1.1; }
+  .donut-total-rotulo{ font-size:0.6rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+  .legenda-grafico{
+    display:flex;
+    flex-direction:column;
+    gap:11px;
+    min-width:170px;
+    flex:1;
+  }
+  .legenda-item{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:0.85rem;
+    color:var(--text);
+  }
+  .legenda-item strong{ margin-left:auto; font-family: var(--font-data); font-weight:600; padding-left:10px; }
+  .legenda-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .legenda-dot.cor-apoio{ background:var(--amber); }
+  .legenda-dot.cor-quadrilha{ background:var(--red); }
+  .legenda-dot.cor-monitoramento{ background:var(--green); }
+  .legenda-dot.cor-1{ background:var(--amber); }
+  .legenda-dot.cor-2{ background:var(--focus); }
+  .legenda-dot.cor-3{ background:var(--green); }
+  .legenda-dot.cor-4{ background:var(--red); }
+
   .cartao-grafico-regionais{
     background:var(--panel);
     border:1px solid var(--line);
@@ -412,6 +515,17 @@
     margin-bottom:24px;
   }
   .cartao-grafico-regionais .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; margin-bottom:14px; }
+  .regional-grafico-linha{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .regional-grafico-linha .grafico-barras-regionais{ flex:1; min-width:220px; }
+  @media (max-width: 640px){
+    .regional-grafico-linha{ flex-direction:column; align-items:stretch; }
+  }
   .grafico-barras-regionais{
     display:flex;
     align-items:flex-end;
@@ -657,21 +771,17 @@
 
         <div class="cartao-grafico">
           <div class="rotulo">Apoio de cópia, quadrilha e monitoramento</div>
-          <div class="grafico-barras">
-            <div class="grafico-coluna">
-              <div class="grafico-valor" id="grafico-valor-apoio">0</div>
-              <div class="grafico-barra apoio-copia" id="grafico-barra-apoio" style="height:4px;"></div>
-              <div class="grafico-rotulo">Apoio de cópia</div>
+          <div class="donut-linha">
+            <div class="donut-chart" id="donut-tipos">
+              <div class="donut-centro">
+                <div class="donut-total" id="donut-total-tipos">0</div>
+                <div class="donut-total-rotulo">total</div>
+              </div>
             </div>
-            <div class="grafico-coluna">
-              <div class="grafico-valor" id="grafico-valor-quadrilha">0</div>
-              <div class="grafico-barra quadrilha" id="grafico-barra-quadrilha" style="height:4px;"></div>
-              <div class="grafico-rotulo">Quadrilha</div>
-            </div>
-            <div class="grafico-coluna">
-              <div class="grafico-valor" id="grafico-valor-monitoramento">0</div>
-              <div class="grafico-barra monitoramento" id="grafico-barra-monitoramento" style="height:4px;"></div>
-              <div class="grafico-rotulo">Monitoramento</div>
+            <div class="legenda-grafico">
+              <div class="legenda-item"><span class="legenda-dot cor-apoio"></span>Apoio de cópia<strong id="grafico-valor-apoio">0</strong></div>
+              <div class="legenda-item"><span class="legenda-dot cor-quadrilha"></span>Quadrilha<strong id="grafico-valor-quadrilha">0</strong></div>
+              <div class="legenda-item"><span class="legenda-dot cor-monitoramento"></span>Monitoramento<strong id="grafico-valor-monitoramento">0</strong></div>
             </div>
           </div>
         </div>
@@ -679,7 +789,18 @@
 
       <div class="cartao-grafico-regionais">
         <div class="rotulo">Ocorrências por regional</div>
-        <div class="grafico-barras-regionais" id="grafico-regionais"></div>
+        <div class="regional-grafico-linha">
+          <div class="donut-linha">
+            <div class="donut-chart" id="donut-regionais">
+              <div class="donut-centro">
+                <div class="donut-total" id="donut-total-regionais">0</div>
+                <div class="donut-total-rotulo">total</div>
+              </div>
+            </div>
+            <div class="legenda-grafico" id="legenda-regionais"></div>
+          </div>
+          <div class="grafico-barras-regionais" id="grafico-regionais"></div>
+        </div>
       </div>
 
       <form id="form-ocorrencia">
@@ -693,9 +814,8 @@
         </div>
         <div>
           <label for="loja">Loja</label>
-          <select id="loja" required>
-            <option value="" disabled selected>Selecione a loja...</option>
-          </select>
+          <input type="text" id="loja" list="lista-lojas" placeholder="Ex: CT03" autocomplete="off" required />
+          <datalist id="lista-lojas"></datalist>
         </div>
         <div>
           <label for="regional">Regional</label>
@@ -714,21 +834,27 @@
           <input type="file" id="foto" accept="image/*" />
           <img id="foto-preview" style="display:none; max-width:160px; border-radius:8px; margin-top:8px;" />
         </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="quadrilha" />
-          <label for="quadrilha">Envolveu quadrilha</label>
-        </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="inibido" />
-          <label for="inibido">Ocorrência foi inibida</label>
-        </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="apoioCopia" />
-          <label for="apoioCopia">Teve apoio de cópia</label>
-        </div>
-        <div class="checkbox-linha" style="align-self:end; padding-bottom:9px;">
-          <input type="checkbox" id="monitoramento" />
-          <label for="monitoramento">Teve monitoramento</label>
+        <div class="full grade-pills">
+          <label class="pill-checkbox" for="quadrilha">
+            <input type="checkbox" id="quadrilha" />
+            <span class="pill-marcador"></span>
+            <span class="pill-texto">Envolveu quadrilha</span>
+          </label>
+          <label class="pill-checkbox" for="inibido">
+            <input type="checkbox" id="inibido" />
+            <span class="pill-marcador"></span>
+            <span class="pill-texto">Ocorrência foi inibida</span>
+          </label>
+          <label class="pill-checkbox" for="apoioCopia">
+            <input type="checkbox" id="apoioCopia" />
+            <span class="pill-marcador"></span>
+            <span class="pill-texto">Teve apoio de cópia</span>
+          </label>
+          <label class="pill-checkbox" for="monitoramento">
+            <input type="checkbox" id="monitoramento" />
+            <span class="pill-marcador"></span>
+            <span class="pill-texto">Teve monitoramento</span>
+          </label>
         </div>
         <div class="full">
           <button type="submit">Registrar ocorrência</button>
@@ -837,23 +963,33 @@
   });
 
   function popularSelectLojas(){
-    const select = $("#loja");
+    const lista = $("#lista-lojas");
     REGIONAIS.forEach((r) => {
-      const grupo = document.createElement("optgroup");
-      grupo.label = r.nome;
       r.lojas.forEach((codigo) => {
         const opt = document.createElement("option");
         opt.value = codigo;
-        opt.textContent = codigo;
-        grupo.appendChild(opt);
+        lista.appendChild(opt);
       });
-      select.appendChild(grupo);
     });
   }
   popularSelectLojas();
 
-  $("#loja").addEventListener("change", () => {
-    const info = MAPA_LOJAS[$("#loja").value];
+  document.querySelectorAll(".pill-checkbox input").forEach((input) => {
+    const pill = input.closest(".pill-checkbox");
+    input.addEventListener("change", () => {
+      pill.classList.toggle("marcado", input.checked);
+    });
+  });
+
+  $("#loja").addEventListener("input", () => {
+    const campo = $("#loja");
+    const valor = campo.value.toUpperCase();
+    if(valor !== campo.value){
+      const pos = campo.selectionStart;
+      campo.value = valor;
+      campo.setSelectionRange(pos, pos);
+    }
+    const info = MAPA_LOJAS[campo.value.trim().toUpperCase()];
     $("#regional").value = info ? info.regional : "";
   });
 
@@ -1246,11 +1382,24 @@
     renderizarGraficoRegionais();
   }
 
+  const CORES_REGIONAL = ["var(--amber)", "var(--focus)", "var(--green)", "var(--red)"];
+
   function renderizarGraficoRegionais(){
     const container = $("#grafico-regionais");
     const grupos = agruparPorRegional(ocorrencias);
     const maior = Math.max(...grupos.map((g) => g.total), 1);
+    const totalRegionais = grupos.reduce((soma, g) => soma + g.total, 0);
     const ALTURA_MAX = 120;
+
+    $("#donut-total-regionais").textContent = totalRegionais;
+    pintarDonut("#donut-regionais", grupos.map((g, i) => ({
+      valor: g.total,
+      cor: CORES_REGIONAL[i % CORES_REGIONAL.length],
+    })), totalRegionais);
+
+    $("#legenda-regionais").innerHTML = grupos.map((g, i) => `
+      <div class="legenda-item"><span class="legenda-dot cor-${(i % 4) + 1}"></span>${escapeHtml(g.nome)}<strong>${g.total}</strong></div>
+    `).join("");
 
     container.innerHTML = grupos.map((g, i) => {
       const altura = g.total === 0 ? 4 : Math.max(4, Math.round((g.total / maior) * ALTURA_MAX));
@@ -1273,24 +1422,38 @@
     });
   }
 
+  function pintarDonut(seletor, fatias, total){
+    const el = $(seletor);
+    if(!el) return;
+    if(total === 0){
+      el.style.background = "conic-gradient(var(--line) 0deg 360deg)";
+      return;
+    }
+    let acumulado = 0;
+    const partes = fatias.map((f) => {
+      const inicio = acumulado;
+      acumulado += (f.valor / total) * 360;
+      return `${f.cor} ${inicio}deg ${acumulado}deg`;
+    });
+    el.style.background = `conic-gradient(${partes.join(", ")})`;
+  }
+
   function atualizarGrafico(){
     const qtdApoio = ocorrencias.filter((o) => o.apoioCopia).length;
     const qtdQuadrilha = ocorrencias.filter((o) => o.quadrilha).length;
     const qtdMonitoramento = ocorrencias.filter((o) => o.monitoramento).length;
-    const maior = Math.max(qtdApoio, qtdQuadrilha, qtdMonitoramento, 1);
-    const ALTURA_MAX = 120;
+    const total = qtdApoio + qtdQuadrilha + qtdMonitoramento;
 
-    const partes = [
-      { valor: qtdApoio, elValor: "#grafico-valor-apoio", elBarra: "#grafico-barra-apoio" },
-      { valor: qtdQuadrilha, elValor: "#grafico-valor-quadrilha", elBarra: "#grafico-barra-quadrilha" },
-      { valor: qtdMonitoramento, elValor: "#grafico-valor-monitoramento", elBarra: "#grafico-barra-monitoramento" },
-    ];
+    $("#grafico-valor-apoio").textContent = qtdApoio;
+    $("#grafico-valor-quadrilha").textContent = qtdQuadrilha;
+    $("#grafico-valor-monitoramento").textContent = qtdMonitoramento;
+    $("#donut-total-tipos").textContent = total;
 
-    partes.forEach((p) => {
-      $(p.elValor).textContent = p.valor;
-      const altura = p.valor === 0 ? 4 : Math.max(4, Math.round((p.valor / maior) * ALTURA_MAX));
-      $(p.elBarra).style.height = `${altura}px`;
-    });
+    pintarDonut("#donut-tipos", [
+      { valor: qtdApoio, cor: "var(--amber)" },
+      { valor: qtdQuadrilha, cor: "var(--red)" },
+      { valor: qtdMonitoramento, cor: "var(--green)" },
+    ], total);
   }
 
   function obterFiltros(){
@@ -1422,6 +1585,7 @@
     });
     if(resp.ok){
       e.target.reset();
+      document.querySelectorAll(".pill-checkbox.marcado").forEach((p) => p.classList.remove("marcado"));
       fotoBase64Atual = null;
       $("#foto-preview").style.display = "none";
       carregarOcorrencias();
