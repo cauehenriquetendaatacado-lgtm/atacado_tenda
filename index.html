@@ -729,13 +729,7 @@
   #modal-confirmar{ background:var(--green); color:#fff; }
   #modal-desconfirmar{ background:none; border:1px solid var(--amber); color:var(--amber); }
 
-  .tabela-scroll{ overflow-x:auto; overflow-y:auto; max-height:420px; margin-top:12px; }
-  .tabela-inibidas thead th{
-    position:sticky;
-    top:0;
-    background:var(--panel);
-    z-index:1;
-  }
+  .tabela-scroll{ overflow-x:auto; margin-top:12px; }
   .tabela-inibidas{
     width:100%;
     min-width:520px;
@@ -755,16 +749,6 @@
     letter-spacing:0.04em;
     color:var(--muted);
     font-weight:600;
-  }
-  .tabela-inibidas th .th-responsavel{
-    display:block;
-    margin-top:3px;
-    font-family: var(--font-body);
-    font-size:0.68rem;
-    text-transform:none;
-    letter-spacing:normal;
-    font-weight:400;
-    color:var(--focus);
   }
   .tabela-inibidas th:first-child, .tabela-inibidas td:first-child{
     text-align:left;
@@ -991,6 +975,10 @@
             <input type="checkbox" id="f-pendente" />
             <label for="f-pendente">Só pendentes de confirmação</label>
           </div>
+          <div class="campo-check" id="campo-f-confirmada" style="display:none;">
+            <input type="checkbox" id="f-confirmada" />
+            <label for="f-confirmada">Só confirmadas</label>
+          </div>
           <button id="btn-limpar-filtro" type="button">Limpar</button>
         </div>
         <div id="resultado-filtro"></div>
@@ -1070,7 +1058,11 @@
     return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   }
   function formatarData(iso){
-    const [ano, mes, dia] = iso.split("-");
+    if(!iso) return "";
+    // Aceita tanto "AAAA-MM-DD" quanto um timestamp ISO completo
+    // ("AAAA-MM-DDTHH:mm:ss.sssZ"), usando só a parte da data.
+    const soData = String(iso).split("T")[0];
+    const [ano, mes, dia] = soData.split("-");
     return `${dia}/${mes}/${ano}`;
   }
 
@@ -1151,6 +1143,7 @@
   function aplicarVisibilidadePorPerfil(){
     $("#selo-admin").style.display = isAdmin ? "inline-block" : "none";
     $("#campo-f-pendente").style.display = isAdmin ? "flex" : "none";
+    $("#campo-f-confirmada").style.display = isAdmin ? "flex" : "none";
     // Usuários comuns só registram ocorrências; a auditoria (ver o que os
     // outros lançaram, navegar por regional/loja, listar, filtrar e
     // confirmar) fica restrita ao administrador.
@@ -1440,31 +1433,18 @@
 
   function agruparInibidasPorMes(lista){
     const meses = {};
-
-    function garantirMes(chave){
+    lista.forEach((o) => {
+      if(!o.inibido) return;
+      const chave = (o.data || "").slice(0, 7); // "AAAA-MM"
+      if(!chave) return;
       if(!meses[chave]){
         const porRegional = {};
         REGIONAIS.forEach((r) => { porRegional[r.nome] = 0; });
         meses[chave] = { chave, porRegional, total: 0 };
       }
-      return meses[chave];
-    }
-
-    // Garante que o mês atual sempre apareça na tabela, mesmo com 0
-    // ocorrências inibidas ainda — assim a coluna acompanha o calendário
-    // sozinha, sem precisar de ajuste manual quando o mês vira.
-    const hoje = new Date();
-    const chaveAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`;
-    garantirMes(chaveAtual);
-
-    lista.forEach((o) => {
-      if(!o.inibido) return;
-      const chave = (o.data || "").slice(0, 7); // "AAAA-MM"
-      if(!chave) return;
-      const grupo = garantirMes(chave);
       const nomeRegional = REGIONAIS.some((r) => r.nome === o.regional) ? o.regional : null;
-      if(nomeRegional) grupo.porRegional[nomeRegional] += 1;
-      grupo.total += 1;
+      if(nomeRegional) meses[chave].porRegional[nomeRegional] += 1;
+      meses[chave].total += 1;
     });
     return Object.values(meses).sort((a, b) => b.chave.localeCompare(a.chave));
   }
@@ -1481,15 +1461,12 @@
     if(!tabela) return;
     const thead = tabela.querySelector("thead");
     const tbody = tabela.querySelector("tbody");
-    // Sem limite fixo de meses: a tabela cresce sozinha conforme o tempo
-    // passa e novos meses vão tendo ocorrências (a rolagem vertical do
-    // quadro evita que ela empurre o resto da página para baixo).
-    const dados = agruparInibidasPorMes(ocorrencias);
+    const dados = agruparInibidasPorMes(ocorrencias).slice(0, 12);
 
     thead.innerHTML = `
       <tr>
         <th>Mês</th>
-        ${REGIONAIS.map((r) => `<th>${escapeHtml(r.nome)}${r.responsavel ? `<span class="th-responsavel">${escapeHtml(r.responsavel)}</span>` : ""}</th>`).join("")}
+        ${REGIONAIS.map((r) => `<th>${escapeHtml(r.nome)}</th>`).join("")}
         <th>Total</th>
       </tr>
     `;
@@ -1536,6 +1513,7 @@
   });
   $("#f-quadrilha").addEventListener("change", renderizarLista);
   $("#f-pendente").addEventListener("change", renderizarLista);
+  $("#f-confirmada").addEventListener("change", renderizarLista);
   $("#btn-limpar-filtro").addEventListener("click", () => {
     $("#f-loja").value = "";
     $("#f-regional").value = "";
@@ -1543,6 +1521,7 @@
     $("#f-data-fim").value = "";
     $("#f-quadrilha").checked = false;
     $("#f-pendente").checked = false;
+    $("#f-confirmada").checked = false;
     renderizarLista();
   });
 
@@ -1682,6 +1661,7 @@
       dataFim: $("#f-data-fim").value,
       soQuadrilha: $("#f-quadrilha").checked,
       soPendente: isAdmin && $("#f-pendente").checked,
+      soConfirmada: isAdmin && $("#f-confirmada").checked,
     };
   }
 
@@ -1694,6 +1674,7 @@
       if(f.dataFim && o.data > f.dataFim) return false;
       if(f.soQuadrilha && !o.quadrilha) return false;
       if(f.soPendente && o.confirmado) return false;
+      if(f.soConfirmada && !o.confirmado) return false;
       return true;
     });
   }
@@ -1711,7 +1692,7 @@
 
   function filtroEstaAtivo(){
     const f = obterFiltros();
-    return Boolean(f.loja || f.regional || f.dataIni || f.dataFim || f.soQuadrilha || f.soPendente);
+    return Boolean(f.loja || f.regional || f.dataIni || f.dataFim || f.soQuadrilha || f.soPendente || f.soConfirmada);
   }
 
   function renderizarLista(){

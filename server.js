@@ -10,6 +10,13 @@ const { Pool, types } = require("pg");
 // campo numeric (OID 1700).
 types.setTypeParser(1700, (val) => (val === null ? null : parseFloat(val)));
 
+// O driver do Postgres também devolvia colunas "date" (OID 1082) já convertidas
+// em objeto Date do JS. Ao virar JSON, esse Date era serializado como
+// "2026-09-04T00:00:00.000Z", e o front-end (que espera "AAAA-MM-DD") cortava
+// esse texto errado, mostrando datas quebradas tipo "04T00:00:00.000Z/09/2026".
+// Aqui mantemos a data como veio do banco, em texto puro "AAAA-MM-DD".
+types.setTypeParser(1082, (val) => val);
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 const SENHA = process.env.SENHA_PAINEL || "tenda123@";
