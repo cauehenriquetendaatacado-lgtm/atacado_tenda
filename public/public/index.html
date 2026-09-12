@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>C.H painel de dados</title>
+<title>Painel de Ocorrências — Tenda Atacado</title>
 <link rel="manifest" href="/manifest.webmanifest" />
 <meta name="theme-color" content="#0a1929" />
 <link rel="icon" href="/icon-192.png" type="image/png" />
@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="C.H" />
+<meta name="apple-mobile-web-app-title" content="Tenda Atacado" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
@@ -178,54 +178,58 @@
   .checkbox-linha input{ width:auto; }
   .checkbox-linha label{ margin:0; color:var(--text); font-size:0.9rem; }
 
-  .grade-pills{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:12px;
+  /* Botões de seleção (toggle) — substituem os checkboxes de quadrilha/inibida/apoio/monitoramento */
+  .campo-toggle{ position:relative; align-self:end; }
+  .toggle-check{
+    position:absolute;
+    width:1px; height:1px;
+    padding:0; margin:0;
+    overflow:hidden;
+    clip:rect(0 0 0 0);
+    white-space:nowrap;
+    border:0;
   }
-  .pill-checkbox{
+  .toggle-botao{
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:9px;
+    width:100%;
     background:var(--bg);
     border:1px solid var(--line);
-    border-radius:999px;
-    padding:12px 18px;
+    color:var(--muted);
+    padding:9px 12px;
+    border-radius:20px;
+    font-size:0.86rem;
+    font-weight:500;
     cursor:pointer;
-    transition: border-color 0.15s ease, background 0.15s ease;
+    user-select:none;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
   }
-  .pill-checkbox:hover{ border-color:var(--focus); }
-  .pill-checkbox input{
-    position:absolute;
-    opacity:0;
-    width:0;
-    height:0;
-  }
-  .pill-marcador{
-    width:16px;
-    height:16px;
-    border-radius:50%;
-    border:2px solid var(--muted);
+  .toggle-botao:hover{ border-color:var(--muted); }
+  .toggle-check:focus-visible + .toggle-botao{ outline:2px solid var(--focus); outline-offset:2px; }
+  .toggle-marca{
     flex-shrink:0;
+    width:14px; height:14px;
+    border-radius:50%;
+    border:1.5px solid var(--line);
     position:relative;
-    transition: border-color 0.15s ease, background 0.15s ease;
+    transition: border-color 0.15s ease;
   }
-  .pill-texto{ color:var(--focus); font-size:0.88rem; font-weight:500; }
-  .pill-checkbox.marcado{ border-color:var(--focus); background:var(--panel-2); }
-  .pill-checkbox.marcado .pill-marcador{ border-color:var(--focus); background:var(--focus); }
-  .pill-checkbox.marcado .pill-marcador::after{
+  .toggle-marca::after{
     content:"";
     position:absolute;
-    top:50%; left:50%;
-    width:6px;
-    height:6px;
+    inset:3px;
     border-radius:50%;
-    background:var(--bg);
-    transform:translate(-50%,-50%);
+    background:transparent;
+    transition: background 0.15s ease;
   }
-  @media (max-width:560px){
-    .grade-pills{ grid-template-columns: 1fr; }
-  }
+  .toggle-check:checked + .toggle-botao{ background:var(--panel-2); color:var(--text); }
+  .toggle-check:checked + .toggle-botao .toggle-marca::after{ background:currentColor; }
+  /* cor por significado, igual à já usada nas tags e no gráfico de apoio/quadrilha/monitoramento */
+  .toggle-check:checked + .toggle-quadrilha{ border-color:var(--red); color:var(--red); }
+  .toggle-check:checked + .toggle-inibido{ border-color:var(--green); color:var(--green); }
+  .toggle-check:checked + .toggle-apoio{ border-color:var(--amber); color:var(--amber); }
+  .toggle-check:checked + .toggle-monitoramento{ border-color:var(--green); color:var(--green); }
 
   button{
     background:var(--amber);
@@ -280,7 +284,7 @@
   .verificar .lista-titulo{ margin-bottom:12px; }
   .verificar .linha-filtros{
     display:grid;
-    grid-template-columns: 1.2fr 1.2fr 1fr 1fr auto auto;
+    grid-template-columns: 1.2fr 1.2fr 1fr 1fr auto auto auto;
     gap:10px;
     align-items:end;
   }
@@ -453,84 +457,6 @@
     line-height:1.3;
   }
 
-  .donut-linha{
-    display:flex;
-    align-items:center;
-    gap:22px;
-    flex-wrap:wrap;
-  }
-  .donut-chart{
-    position:relative;
-    width:132px;
-    height:132px;
-    border-radius:50%;
-    flex-shrink:0;
-    background:conic-gradient(var(--line) 0deg 360deg);
-    transition: background 0.25s ease;
-  }
-  .donut-centro{
-    position:absolute;
-    top:50%; left:50%;
-    transform:translate(-50%,-50%);
-    width:74px;
-    height:74px;
-    border-radius:50%;
-    background:var(--panel);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-  }
-  .donut-total{ font-family: var(--font-data); font-size:1.25rem; font-weight:600; color:var(--text); line-height:1.1; }
-  .donut-total-rotulo{ font-size:0.6rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
-
-  .donut-chart-wrap{ position:relative; flex-shrink:0; }
-  .donut-tooltip{
-    position:absolute;
-    bottom:calc(100% + 10px);
-    left:50%;
-    transform:translateX(-50%);
-    background:var(--panel-2);
-    border:1px solid var(--line);
-    border-radius:6px;
-    padding:9px 13px;
-    white-space:nowrap;
-    opacity:0;
-    visibility:hidden;
-    pointer-events:none;
-    transition:opacity 0.15s ease;
-    z-index:10;
-    box-shadow:0 8px 22px rgba(0,0,0,0.4);
-  }
-  .donut-chart-wrap:hover .donut-tooltip{ opacity:1; visibility:visible; }
-  .donut-tooltip-linha{ display:flex; align-items:center; gap:16px; font-size:0.78rem; color:var(--text); }
-  .donut-tooltip-linha + .donut-tooltip-linha{ margin-top:5px; }
-  .donut-tooltip-linha span{ display:flex; align-items:center; gap:6px; color:var(--muted); }
-  .donut-tooltip-linha strong{ margin-left:auto; font-family: var(--font-data); color:var(--text); font-weight:600; }
-  .legenda-grafico{
-    display:flex;
-    flex-direction:column;
-    gap:11px;
-    min-width:170px;
-    flex:1;
-  }
-  .legenda-item{
-    display:flex;
-    align-items:center;
-    gap:9px;
-    font-size:0.85rem;
-    color:var(--text);
-  }
-  .legenda-item strong{ margin-left:auto; font-family: var(--font-data); font-weight:600; padding-left:10px; }
-  .legenda-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-  .legenda-dot.cor-apoio{ background:var(--amber); }
-  .legenda-dot.cor-quadrilha{ background:var(--red); }
-  .legenda-dot.cor-monitoramento{ background:var(--green); }
-  .legenda-dot.cor-1{ background:var(--amber); }
-  .legenda-dot.cor-2{ background:var(--focus); }
-  .legenda-dot.cor-3{ background:var(--green); }
-  .legenda-dot.cor-4{ background:var(--red); }
-
   .cartao-grafico-regionais{
     background:var(--panel);
     border:1px solid var(--line);
@@ -539,17 +465,6 @@
     margin-bottom:24px;
   }
   .cartao-grafico-regionais .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; margin-bottom:14px; }
-  .regional-grafico-linha{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:24px;
-    flex-wrap:wrap;
-  }
-  .regional-grafico-linha .grafico-barras-regionais{ flex:1; min-width:220px; }
-  @media (max-width: 640px){
-    .regional-grafico-linha{ flex-direction:column; align-items:stretch; }
-  }
   .grafico-barras-regionais{
     display:flex;
     align-items:flex-end;
@@ -578,6 +493,61 @@
   .grafico-barra.cor-2{ background:var(--focus); }
   .grafico-barra.cor-3{ background:var(--green); }
   .grafico-barra.cor-4{ background:var(--red); }
+
+  .grafico-pizza-wrap{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    flex-wrap:wrap;
+  }
+  .grafico-regionais-linha{
+    display:flex;
+    align-items:center;
+    gap:28px;
+    flex-wrap:wrap;
+  }
+  .grafico-regionais-linha .grafico-pizza-wrap{ flex:1 1 220px; }
+  .grafico-regionais-linha .grafico-barras-regionais{ flex:1 1 220px; }
+  @media (max-width:720px){
+    .grafico-regionais-linha{ flex-direction:column; align-items:stretch; }
+  }
+  .grafico-pizza{
+    width:140px;
+    height:140px;
+    flex-shrink:0;
+  }
+  .grafico-legenda{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    flex:1;
+    min-width:150px;
+  }
+  .legenda-item{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:0.82rem;
+    color:var(--muted);
+    background:none;
+    border:none;
+    padding:2px 0;
+    text-align:left;
+    font-family: var(--font-body);
+  }
+  .legenda-item.clicavel{ cursor:pointer; }
+  .legenda-item.clicavel:hover{ color:var(--text); }
+  .legenda-item.clicavel:hover .legenda-ponto{ filter:brightness(1.2); }
+  .legenda-ponto{
+    width:10px; height:10px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .legenda-nome{ flex:1; }
+  .legenda-valor{ font-family: var(--font-data); color:var(--text); font-weight:600; }
+  @media (max-width:520px){
+    .grafico-pizza-wrap{ flex-direction:column; align-items:flex-start; }
+  }
 
   .pagina-header{
     display:flex;
@@ -729,6 +699,71 @@
   .tag-inibida{ color:var(--green); border:1px solid var(--green); }
   .tag-nao-inibida{ color:var(--red); border:1px solid var(--red); }
 
+  .tag-confirmada, .tag-pendente{
+    font-family: var(--font-display);
+    font-size:0.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    border-radius:3px;
+    padding:1px 6px;
+    white-space:nowrap;
+  }
+  .tag-confirmada{ color:var(--green); border:1px solid var(--green); }
+  .tag-pendente{ color:var(--amber); border:1px solid var(--amber); }
+
+  .selo-admin{
+    font-family: var(--font-display);
+    font-size:0.68rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--bg);
+    background:var(--amber);
+    border-radius:3px;
+    padding:2px 8px;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+
+  #modal-confirmar{ background:var(--green); color:#fff; }
+  #modal-desconfirmar{ background:none; border:1px solid var(--amber); color:var(--amber); }
+
+  .tabela-scroll{ overflow-x:auto; margin-top:12px; }
+  .tabela-inibidas{
+    width:100%;
+    min-width:520px;
+    border-collapse:collapse;
+    font-size:0.85rem;
+  }
+  .tabela-inibidas th, .tabela-inibidas td{
+    padding:9px 10px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  .tabela-inibidas th{
+    font-family: var(--font-display);
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .tabela-inibidas th:first-child, .tabela-inibidas td:first-child{
+    text-align:left;
+    font-family: var(--font-data);
+    color:var(--text);
+  }
+  .tabela-inibidas td{ font-family: var(--font-data); }
+  .tabela-inibidas tbody tr:hover{ background:var(--panel-2); }
+  .tabela-inibidas .vazio-tabela{
+    text-align:center;
+    color:var(--muted);
+    padding:16px;
+    white-space:normal;
+  }
+
   @media (max-width:560px){
     form#form-ocorrencia{ grid-template-columns: 1fr; }
     .resumo{ grid-template-columns: 1fr; }
@@ -742,8 +777,8 @@
 
 <div id="tela-login">
   <div class="login-box">
-    <span class="eyebrow">C.H</span>
-    <h2>Painel de dados</h2>
+    <span class="eyebrow">Tenda Atacado</span>
+    <h2>Painel de Ocorrências</h2>
     <label for="senha">Senha de acesso</label>
     <input type="password" id="senha" autocomplete="current-password" />
     <button id="btn-entrar">Entrar</button>
@@ -754,15 +789,15 @@
 <div id="tela-painel" style="display:none;">
   <div class="top">
     <div>
-      <span class="eyebrow">C.H</span>
-      <h1>C.H painel de dados</h1>
+      <span class="eyebrow">Tenda Atacado</span>
+      <h1>Painel de Ocorrências de Roubo <span id="selo-admin" class="selo-admin" style="display:none;">Administrador</span></h1>
     </div>
     <button id="sair">Sair</button>
   </div>
 
   <main>
     <div id="pagina-dashboard">
-      <div class="resumo">
+      <div class="resumo" id="secao-resumo">
         <div class="cartao">
           <div class="rotulo">Ocorrências registradas</div>
           <div class="valor" id="total-ocorrencias">0</div>
@@ -774,7 +809,7 @@
         </button>
       </div>
 
-      <div class="painel-secundario">
+      <div class="painel-secundario" id="secao-painel-secundario">
         <div class="coluna-nav">
           <button id="btn-abrir-regionais" class="cartao-nav" type="button">
             <div>
@@ -795,41 +830,31 @@
 
         <div class="cartao-grafico">
           <div class="rotulo">Apoio de cópia, quadrilha e monitoramento</div>
-          <div class="donut-linha">
-            <div class="donut-chart-wrap">
-              <div class="donut-chart" id="donut-tipos">
-                <div class="donut-centro">
-                  <div class="donut-total" id="donut-total-tipos">0</div>
-                  <div class="donut-total-rotulo">total</div>
-                </div>
-              </div>
-              <div class="donut-tooltip" id="tooltip-tipos"></div>
-            </div>
-            <div class="legenda-grafico">
-              <div class="legenda-item"><span class="legenda-dot cor-apoio"></span>Apoio de cópia<strong id="grafico-valor-apoio">0</strong></div>
-              <div class="legenda-item"><span class="legenda-dot cor-quadrilha"></span>Quadrilha<strong id="grafico-valor-quadrilha">0</strong></div>
-              <div class="legenda-item"><span class="legenda-dot cor-monitoramento"></span>Monitoramento<strong id="grafico-valor-monitoramento">0</strong></div>
-            </div>
+          <div class="grafico-pizza-wrap">
+            <svg class="grafico-pizza" id="pizza-indicadores" viewBox="0 0 120 120" role="img" aria-label="Distribuição de apoio de cópia, quadrilha e monitoramento"></svg>
+            <div class="grafico-legenda" id="legenda-indicadores"></div>
           </div>
         </div>
       </div>
 
-      <div class="cartao-grafico-regionais">
+      <div class="cartao-grafico-regionais" id="secao-grafico-regionais">
         <div class="rotulo">Ocorrências por regional</div>
-        <div class="regional-grafico-linha">
-          <div class="donut-linha">
-            <div class="donut-chart-wrap">
-              <div class="donut-chart" id="donut-regionais">
-                <div class="donut-centro">
-                  <div class="donut-total" id="donut-total-regionais">0</div>
-                  <div class="donut-total-rotulo">total</div>
-                </div>
-              </div>
-              <div class="donut-tooltip" id="tooltip-regionais"></div>
-            </div>
-            <div class="legenda-grafico" id="legenda-regionais"></div>
+        <div class="grafico-regionais-linha">
+          <div class="grafico-pizza-wrap">
+            <svg class="grafico-pizza" id="pizza-regionais" viewBox="0 0 120 120" role="img" aria-label="Distribuição de ocorrências por regional"></svg>
+            <div class="grafico-legenda" id="legenda-regionais"></div>
           </div>
-          <div class="grafico-barras-regionais" id="grafico-regionais"></div>
+          <div class="grafico-barras-regionais" id="colunas-regionais"></div>
+        </div>
+      </div>
+
+      <div class="cartao-grafico-regionais" id="secao-inibidas-mensal">
+        <div class="rotulo">Ocorrências inibidas por mês e regional</div>
+        <div class="tabela-scroll">
+          <table class="tabela-inibidas" id="tabela-inibidas-mensal">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
 
@@ -844,7 +869,7 @@
         </div>
         <div>
           <label for="loja">Loja</label>
-          <input type="text" id="loja" list="lista-lojas" placeholder="Ex: CT03" autocomplete="off" required />
+          <input type="text" id="loja" list="lista-lojas" placeholder="Digite o código (ex: CT06)" autocomplete="off" required />
           <datalist id="lista-lojas"></datalist>
         </div>
         <div>
@@ -864,26 +889,32 @@
           <input type="file" id="foto" accept="image/*" />
           <img id="foto-preview" style="display:none; max-width:160px; border-radius:8px; margin-top:8px;" />
         </div>
-        <div class="full grade-pills">
-          <label class="pill-checkbox" for="quadrilha">
-            <input type="checkbox" id="quadrilha" />
-            <span class="pill-marcador"></span>
-            <span class="pill-texto">Envolveu quadrilha</span>
+        <div class="campo-toggle">
+          <input type="checkbox" id="quadrilha" class="toggle-check" />
+          <label for="quadrilha" class="toggle-botao toggle-quadrilha">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Envolveu quadrilha
           </label>
-          <label class="pill-checkbox" for="inibido">
-            <input type="checkbox" id="inibido" />
-            <span class="pill-marcador"></span>
-            <span class="pill-texto">Ocorrência foi inibida</span>
+        </div>
+        <div class="campo-toggle">
+          <input type="checkbox" id="inibido" class="toggle-check" />
+          <label for="inibido" class="toggle-botao toggle-inibido">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Ocorrência foi inibida
           </label>
-          <label class="pill-checkbox" for="apoioCopia">
-            <input type="checkbox" id="apoioCopia" />
-            <span class="pill-marcador"></span>
-            <span class="pill-texto">Teve apoio de cópia</span>
+        </div>
+        <div class="campo-toggle">
+          <input type="checkbox" id="apoioCopia" class="toggle-check" />
+          <label for="apoioCopia" class="toggle-botao toggle-apoio">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Teve apoio de cópia
           </label>
-          <label class="pill-checkbox" for="monitoramento">
-            <input type="checkbox" id="monitoramento" />
-            <span class="pill-marcador"></span>
-            <span class="pill-texto">Teve monitoramento</span>
+        </div>
+        <div class="campo-toggle">
+          <input type="checkbox" id="monitoramento" class="toggle-check" />
+          <label for="monitoramento" class="toggle-botao toggle-monitoramento">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Teve monitoramento
           </label>
         </div>
         <div class="full">
@@ -940,6 +971,10 @@
             <input type="checkbox" id="f-quadrilha" />
             <label for="f-quadrilha">Só quadrilha</label>
           </div>
+          <div class="campo-check" id="campo-f-pendente" style="display:none;">
+            <input type="checkbox" id="f-pendente" />
+            <label for="f-pendente">Só pendentes de confirmação</label>
+          </div>
           <button id="btn-limpar-filtro" type="button">Limpar</button>
         </div>
         <div id="resultado-filtro"></div>
@@ -957,6 +992,7 @@
 <script>
   const $ = (sel) => document.querySelector(sel);
   let senhaAtual = localStorage.getItem("senha_painel") || "";
+  let isAdmin = localStorage.getItem("painel_admin") === "1";
   let modoQuadrilha = false;
   let ocorrencias = [];
 
@@ -992,34 +1028,24 @@
     });
   });
 
-  function popularSelectLojas(){
-    const lista = $("#lista-lojas");
+  function popularListaLojas(){
+    const datalist = $("#lista-lojas");
     REGIONAIS.forEach((r) => {
       r.lojas.forEach((codigo) => {
         const opt = document.createElement("option");
         opt.value = codigo;
-        lista.appendChild(opt);
+        opt.label = r.nome;
+        datalist.appendChild(opt);
       });
     });
   }
-  popularSelectLojas();
+  popularListaLojas();
 
-  document.querySelectorAll(".pill-checkbox input").forEach((input) => {
-    const pill = input.closest(".pill-checkbox");
-    input.addEventListener("change", () => {
-      pill.classList.toggle("marcado", input.checked);
-    });
-  });
-
-  $("#loja").addEventListener("input", () => {
-    const campo = $("#loja");
-    const valor = campo.value.toUpperCase();
-    if(valor !== campo.value){
-      const pos = campo.selectionStart;
-      campo.value = valor;
-      campo.setSelectionRange(pos, pos);
-    }
-    const info = MAPA_LOJAS[campo.value.trim().toUpperCase()];
+  $("#loja").addEventListener("input", (e) => {
+    const posicaoCursor = e.target.selectionStart;
+    e.target.value = e.target.value.toUpperCase();
+    e.target.setSelectionRange(posicaoCursor, posicaoCursor);
+    const info = MAPA_LOJAS[e.target.value.trim()];
     $("#regional").value = info ? info.regional : "";
   });
 
@@ -1106,16 +1132,31 @@
     return resp;
   }
 
+  function aplicarVisibilidadePorPerfil(){
+    $("#selo-admin").style.display = isAdmin ? "inline-block" : "none";
+    $("#campo-f-pendente").style.display = isAdmin ? "flex" : "none";
+    // Usuários comuns só registram ocorrências; a auditoria (ver o que os
+    // outros lançaram, navegar por regional/loja, listar, filtrar e
+    // confirmar) fica restrita ao administrador.
+    $("#secao-resumo").style.display = isAdmin ? "" : "none";
+    $("#secao-painel-secundario").style.display = isAdmin ? "" : "none";
+    $("#secao-grafico-regionais").style.display = isAdmin ? "" : "none";
+    $("#secao-inibidas-mensal").style.display = isAdmin ? "" : "none";
+  }
+
   function mostrarLogin(erro){
     $("#tela-painel").style.display = "none";
     $("#tela-login").style.display = "flex";
     $("#erro-login").textContent = erro || "";
     localStorage.removeItem("senha_painel");
+    localStorage.removeItem("painel_admin");
+    isAdmin = false;
   }
 
   function mostrarPainel(){
     $("#tela-login").style.display = "none";
     $("#tela-painel").style.display = "block";
+    aplicarVisibilidadePorPerfil();
     carregarOcorrencias();
   }
 
@@ -1127,8 +1168,11 @@
       body: JSON.stringify({ senha }),
     });
     if(resp.ok){
+      const dados = await resp.json().catch(() => ({}));
       senhaAtual = senha;
+      isAdmin = !!dados.admin;
       localStorage.setItem("senha_painel", senha);
+      localStorage.setItem("painel_admin", isAdmin ? "1" : "0");
       $("#erro-login").textContent = "";
       mostrarPainel();
     } else {
@@ -1270,6 +1314,7 @@
         <div class="rodape">
           <span>
             ${o.quadrilha ? '<span class="tag-quadrilha">Quadrilha</span> ' : ""}
+            ${isAdmin ? `<span class="${o.confirmado ? "tag-confirmada" : "tag-pendente"}">${o.confirmado ? "Confirmada" : "Pendente"}</span> ` : ""}
             <span class="valor-recuperado">${formatarMoeda(o.valorRecuperado || 0)} recuperado</span>
           </span>
         </div>
@@ -1296,8 +1341,12 @@
       <div class="modal-linha"><span>Valor recuperado</span><span>${formatarMoeda(o.valorRecuperado || 0)}</span></div>
       <div class="modal-linha"><span>Inibida</span><span>${o.inibido ? "Sim" : "Não"}</span></div>
       <div class="modal-linha"><span>Quadrilha</span><span>${o.quadrilha ? "Sim" : "Não"}</span></div>
+      ${isAdmin ? `<div class="modal-linha"><span>Confirmação</span><span>${o.confirmado ? `Confirmada por ${escapeHtml(o.confirmadoPor || "—")}` : "Pendente"}</span></div>` : ""}
       <div class="modal-acoes">
         <button id="modal-fechar" type="button">Fechar</button>
+        ${isAdmin ? (o.confirmado
+          ? `<button id="modal-desconfirmar" type="button" data-id="${o.id}">Desfazer confirmação</button>`
+          : `<button id="modal-confirmar" type="button" data-id="${o.id}">Confirmar registro</button>`) : ""}
         <button id="modal-excluir" type="button" data-id="${o.id}">Excluir</button>
       </div>
     `;
@@ -1309,6 +1358,33 @@
       fecharModal();
       carregarOcorrencias();
     });
+    if(isAdmin){
+      const btnConfirmar = $("#modal-confirmar");
+      if(btnConfirmar){
+        btnConfirmar.addEventListener("click", async () => {
+          const nomeAdmin = prompt("Seu nome (para registrar quem confirmou):", "");
+          if(nomeAdmin === null) return;
+          await api(`/api/ocorrencias/${o.id}/confirmar`, {
+            method: "PATCH",
+            body: JSON.stringify({ confirmado: true, nome: nomeAdmin.trim() }),
+          });
+          fecharModal();
+          carregarOcorrencias();
+        });
+      }
+      const btnDesconfirmar = $("#modal-desconfirmar");
+      if(btnDesconfirmar){
+        btnDesconfirmar.addEventListener("click", async () => {
+          if(!confirm("Desfazer a confirmação deste registro?")) return;
+          await api(`/api/ocorrencias/${o.id}/confirmar`, {
+            method: "PATCH",
+            body: JSON.stringify({ confirmado: false }),
+          });
+          fecharModal();
+          carregarOcorrencias();
+        });
+      }
+    }
   }
 
   function fecharModal(){
@@ -1346,6 +1422,60 @@
     return Object.values(grupos).sort((a, b) => b.total - a.total);
   }
 
+  function agruparInibidasPorMes(lista){
+    const meses = {};
+    lista.forEach((o) => {
+      if(!o.inibido) return;
+      const chave = (o.data || "").slice(0, 7); // "AAAA-MM"
+      if(!chave) return;
+      if(!meses[chave]){
+        const porRegional = {};
+        REGIONAIS.forEach((r) => { porRegional[r.nome] = 0; });
+        meses[chave] = { chave, porRegional, total: 0 };
+      }
+      const nomeRegional = REGIONAIS.some((r) => r.nome === o.regional) ? o.regional : null;
+      if(nomeRegional) meses[chave].porRegional[nomeRegional] += 1;
+      meses[chave].total += 1;
+    });
+    return Object.values(meses).sort((a, b) => b.chave.localeCompare(a.chave));
+  }
+
+  function formatarMesLabel(chave){
+    const nomesMes = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+    const [ano, mes] = chave.split("-");
+    const idx = parseInt(mes, 10) - 1;
+    return `${nomesMes[idx] || mes}/${ano}`;
+  }
+
+  function renderizarInibidasMensal(){
+    const tabela = $("#tabela-inibidas-mensal");
+    if(!tabela) return;
+    const thead = tabela.querySelector("thead");
+    const tbody = tabela.querySelector("tbody");
+    const dados = agruparInibidasPorMes(ocorrencias).slice(0, 12);
+
+    thead.innerHTML = `
+      <tr>
+        <th>Mês</th>
+        ${REGIONAIS.map((r) => `<th>${escapeHtml(r.nome)}</th>`).join("")}
+        <th>Total</th>
+      </tr>
+    `;
+
+    if(dados.length === 0){
+      tbody.innerHTML = `<tr><td class="vazio-tabela" colspan="${REGIONAIS.length + 2}">Nenhuma ocorrência inibida registrada ainda.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = dados.map((m) => `
+      <tr>
+        <td>${formatarMesLabel(m.chave)}</td>
+        ${REGIONAIS.map((r) => `<td>${m.porRegional[r.nome] || 0}</td>`).join("")}
+        <td><strong>${m.total}</strong></td>
+      </tr>
+    `).join("");
+  }
+
   function renderizarRegionais(){
     const container = $("#lista-regionais");
     const grupos = agruparPorRegional(ocorrencias);
@@ -1373,12 +1503,14 @@
     $(sel).addEventListener("input", renderizarLista);
   });
   $("#f-quadrilha").addEventListener("change", renderizarLista);
+  $("#f-pendente").addEventListener("change", renderizarLista);
   $("#btn-limpar-filtro").addEventListener("click", () => {
     $("#f-loja").value = "";
     $("#f-regional").value = "";
     $("#f-data-ini").value = "";
     $("#f-data-fim").value = "";
     $("#f-quadrilha").checked = false;
+    $("#f-pendente").checked = false;
     renderizarLista();
   });
 
@@ -1410,30 +1542,68 @@
 
     atualizarGrafico();
     renderizarGraficoRegionais();
+    renderizarInibidasMensal();
   }
 
-  const CORES_REGIONAL = ["var(--amber)", "var(--focus)", "var(--green)", "var(--red)"];
+  // ---------- Gráfico de pizza (rosca) reutilizável, sem dependências ----------
+  function criarDonut(svgEl, dados, corFn){
+    const total = dados.reduce((s, d) => s + d.valor, 0);
+    const R = 50, C = 2 * Math.PI * R, ESPESSURA = 18;
+    let acumulado = 0;
+    let partes = `<circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--line)" stroke-width="${ESPESSURA}"></circle>`;
+
+    if(total > 0){
+      dados.forEach((d, i) => {
+        if(d.valor <= 0) return;
+        const comprimento = (d.valor / total) * C;
+        partes += `<circle cx="60" cy="60" r="${R}" fill="none" stroke="${corFn(d, i)}" stroke-width="${ESPESSURA}" stroke-dasharray="${comprimento} ${C}" stroke-dashoffset="${-acumulado}" transform="rotate(-90 60 60)"></circle>`;
+        acumulado += comprimento;
+      });
+    }
+
+    partes += `
+      <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" font-family="var(--font-data)">${total}</text>
+      <text x="60" y="74" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="var(--font-body)">total</text>
+    `;
+    svgEl.innerHTML = partes;
+  }
+
+  function renderizarLegenda(container, dados, cores, opcoes = {}){
+    container.innerHTML = dados.map((d, i) => `
+      <div class="legenda-item ${opcoes.clicavel ? "clicavel" : ""}" data-nome="${escapeHtml(d.nome)}">
+        <span class="legenda-ponto" style="background:${cores[i % cores.length]}"></span>
+        <span class="legenda-nome">${escapeHtml(d.nome)}</span>
+        <span class="legenda-valor">${d.valor}</span>
+      </div>
+    `).join("");
+
+    if(opcoes.clicavel){
+      container.querySelectorAll(".legenda-item").forEach((el) => {
+        el.addEventListener("click", () => opcoes.onClick(el.dataset.nome));
+      });
+    }
+  }
 
   function renderizarGraficoRegionais(){
-    const container = $("#grafico-regionais");
     const grupos = agruparPorRegional(ocorrencias);
+    const dados = grupos.map((g) => ({ nome: g.nome, valor: g.total }));
+    const cores = ["var(--amber)", "var(--focus)", "var(--green)", "var(--red)"];
+
+    criarDonut($("#pizza-regionais"), dados, (d, i) => cores[i % cores.length]);
+    renderizarLegenda($("#legenda-regionais"), dados, cores, {
+      clicavel: true,
+      onClick: (nome) => {
+        if(nome === "Sem regional definida") return;
+        irParaLojas(nome);
+      },
+    });
+    renderizarColunasRegionais(grupos);
+  }
+
+  function renderizarColunasRegionais(grupos){
+    const container = $("#colunas-regionais");
     const maior = Math.max(...grupos.map((g) => g.total), 1);
-    const totalRegionais = grupos.reduce((soma, g) => soma + g.total, 0);
     const ALTURA_MAX = 120;
-
-    $("#donut-total-regionais").textContent = totalRegionais;
-    pintarDonut("#donut-regionais", grupos.map((g, i) => ({
-      valor: g.total,
-      cor: CORES_REGIONAL[i % CORES_REGIONAL.length],
-    })), totalRegionais);
-
-    $("#legenda-regionais").innerHTML = grupos.map((g, i) => `
-      <div class="legenda-item"><span class="legenda-dot cor-${(i % 4) + 1}"></span>${escapeHtml(g.nome)}<strong>${g.total}</strong></div>
-    `).join("");
-
-    $("#tooltip-regionais").innerHTML = grupos.map((g, i) => `
-      <div class="donut-tooltip-linha"><span><span class="legenda-dot cor-${(i % 4) + 1}"></span>${escapeHtml(g.nome)}</span><strong>${g.total}</strong></div>
-    `).join("");
 
     container.innerHTML = grupos.map((g, i) => {
       const altura = g.total === 0 ? 4 : Math.max(4, Math.round((g.total / maior) * ALTURA_MAX));
@@ -1456,44 +1626,20 @@
     });
   }
 
-  function pintarDonut(seletor, fatias, total){
-    const el = $(seletor);
-    if(!el) return;
-    if(total === 0){
-      el.style.background = "conic-gradient(var(--line) 0deg 360deg)";
-      return;
-    }
-    let acumulado = 0;
-    const partes = fatias.map((f) => {
-      const inicio = acumulado;
-      acumulado += (f.valor / total) * 360;
-      return `${f.cor} ${inicio}deg ${acumulado}deg`;
-    });
-    el.style.background = `conic-gradient(${partes.join(", ")})`;
-  }
-
   function atualizarGrafico(){
     const qtdApoio = ocorrencias.filter((o) => o.apoioCopia).length;
     const qtdQuadrilha = ocorrencias.filter((o) => o.quadrilha).length;
     const qtdMonitoramento = ocorrencias.filter((o) => o.monitoramento).length;
-    const total = qtdApoio + qtdQuadrilha + qtdMonitoramento;
 
-    $("#grafico-valor-apoio").textContent = qtdApoio;
-    $("#grafico-valor-quadrilha").textContent = qtdQuadrilha;
-    $("#grafico-valor-monitoramento").textContent = qtdMonitoramento;
-    $("#donut-total-tipos").textContent = total;
+    const dados = [
+      { nome: "Apoio de cópia", valor: qtdApoio },
+      { nome: "Quadrilha", valor: qtdQuadrilha },
+      { nome: "Monitoramento", valor: qtdMonitoramento },
+    ];
+    const cores = ["var(--amber)", "var(--red)", "var(--green)"];
 
-    $("#tooltip-tipos").innerHTML = `
-      <div class="donut-tooltip-linha"><span><span class="legenda-dot cor-apoio"></span>Apoio de cópia</span><strong>${qtdApoio}</strong></div>
-      <div class="donut-tooltip-linha"><span><span class="legenda-dot cor-quadrilha"></span>Quadrilha</span><strong>${qtdQuadrilha}</strong></div>
-      <div class="donut-tooltip-linha"><span><span class="legenda-dot cor-monitoramento"></span>Monitoramento</span><strong>${qtdMonitoramento}</strong></div>
-    `;
-
-    pintarDonut("#donut-tipos", [
-      { valor: qtdApoio, cor: "var(--amber)" },
-      { valor: qtdQuadrilha, cor: "var(--red)" },
-      { valor: qtdMonitoramento, cor: "var(--green)" },
-    ], total);
+    criarDonut($("#pizza-indicadores"), dados, (d, i) => cores[i]);
+    renderizarLegenda($("#legenda-indicadores"), dados, cores);
   }
 
   function obterFiltros(){
@@ -1503,6 +1649,7 @@
       dataIni: $("#f-data-ini").value,
       dataFim: $("#f-data-fim").value,
       soQuadrilha: $("#f-quadrilha").checked,
+      soPendente: isAdmin && $("#f-pendente").checked,
     };
   }
 
@@ -1514,6 +1661,7 @@
       if(f.dataIni && o.data < f.dataIni) return false;
       if(f.dataFim && o.data > f.dataFim) return false;
       if(f.soQuadrilha && !o.quadrilha) return false;
+      if(f.soPendente && o.confirmado) return false;
       return true;
     });
   }
@@ -1531,7 +1679,7 @@
 
   function filtroEstaAtivo(){
     const f = obterFiltros();
-    return Boolean(f.loja || f.regional || f.dataIni || f.dataFim || f.soQuadrilha);
+    return Boolean(f.loja || f.regional || f.dataIni || f.dataFim || f.soQuadrilha || f.soPendente);
   }
 
   function renderizarLista(){
@@ -1560,6 +1708,7 @@
         <div class="rodape">
           <span>
             ${o.quadrilha ? '<span class="tag-quadrilha">Quadrilha</span> ' : ""}
+            ${isAdmin ? `<span class="${o.confirmado ? "tag-confirmada" : "tag-pendente"}">${o.confirmado ? "Confirmada" : "Pendente"}</span> ` : ""}
             <span class="valor-recuperado">${formatarMoeda(o.valorRecuperado || 0)} recuperado</span>
           </span>
           <button class="excluir" data-id="${o.id}">Excluir</button>
@@ -1572,6 +1721,7 @@
           <div class="tooltip-linha"><span>Inibida</span><strong>${o.inibido ? "Sim" : "Não"}</strong></div>
           <div class="tooltip-linha"><span>Quadrilha</span><strong>${o.quadrilha ? "Sim" : "Não"}</strong></div>
           <div class="tooltip-linha"><span>Valor recuperado</span><strong>${formatarMoeda(o.valorRecuperado || 0)}</strong></div>
+          ${isAdmin ? `<div class="tooltip-linha"><span>Confirmação</span><strong>${o.confirmado ? `Sim, por ${escapeHtml(o.confirmadoPor || "—")}` : "Pendente"}</strong></div>` : ""}
         </div>
       </div>
     `).join("");
@@ -1625,7 +1775,6 @@
     });
     if(resp.ok){
       e.target.reset();
-      document.querySelectorAll(".pill-checkbox.marcado").forEach((p) => p.classList.remove("marcado"));
       fotoBase64Atual = null;
       $("#foto-preview").style.display = "none";
       carregarOcorrencias();
