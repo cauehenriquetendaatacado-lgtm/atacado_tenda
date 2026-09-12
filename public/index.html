@@ -729,7 +729,13 @@
   #modal-confirmar{ background:var(--green); color:#fff; }
   #modal-desconfirmar{ background:none; border:1px solid var(--amber); color:var(--amber); }
 
-  .tabela-scroll{ overflow-x:auto; margin-top:12px; }
+  .tabela-scroll{ overflow-x:auto; overflow-y:auto; max-height:420px; margin-top:12px; }
+  .tabela-inibidas thead th{
+    position:sticky;
+    top:0;
+    background:var(--panel);
+    z-index:1;
+  }
   .tabela-inibidas{
     width:100%;
     min-width:520px;
@@ -749,6 +755,16 @@
     letter-spacing:0.04em;
     color:var(--muted);
     font-weight:600;
+  }
+  .tabela-inibidas th .th-responsavel{
+    display:block;
+    margin-top:3px;
+    font-family: var(--font-body);
+    font-size:0.68rem;
+    text-transform:none;
+    letter-spacing:normal;
+    font-weight:400;
+    color:var(--focus);
   }
   .tabela-inibidas th:first-child, .tabela-inibidas td:first-child{
     text-align:left;
@@ -1424,18 +1440,31 @@
 
   function agruparInibidasPorMes(lista){
     const meses = {};
-    lista.forEach((o) => {
-      if(!o.inibido) return;
-      const chave = (o.data || "").slice(0, 7); // "AAAA-MM"
-      if(!chave) return;
+
+    function garantirMes(chave){
       if(!meses[chave]){
         const porRegional = {};
         REGIONAIS.forEach((r) => { porRegional[r.nome] = 0; });
         meses[chave] = { chave, porRegional, total: 0 };
       }
+      return meses[chave];
+    }
+
+    // Garante que o mês atual sempre apareça na tabela, mesmo com 0
+    // ocorrências inibidas ainda — assim a coluna acompanha o calendário
+    // sozinha, sem precisar de ajuste manual quando o mês vira.
+    const hoje = new Date();
+    const chaveAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`;
+    garantirMes(chaveAtual);
+
+    lista.forEach((o) => {
+      if(!o.inibido) return;
+      const chave = (o.data || "").slice(0, 7); // "AAAA-MM"
+      if(!chave) return;
+      const grupo = garantirMes(chave);
       const nomeRegional = REGIONAIS.some((r) => r.nome === o.regional) ? o.regional : null;
-      if(nomeRegional) meses[chave].porRegional[nomeRegional] += 1;
-      meses[chave].total += 1;
+      if(nomeRegional) grupo.porRegional[nomeRegional] += 1;
+      grupo.total += 1;
     });
     return Object.values(meses).sort((a, b) => b.chave.localeCompare(a.chave));
   }
@@ -1452,12 +1481,15 @@
     if(!tabela) return;
     const thead = tabela.querySelector("thead");
     const tbody = tabela.querySelector("tbody");
-    const dados = agruparInibidasPorMes(ocorrencias).slice(0, 12);
+    // Sem limite fixo de meses: a tabela cresce sozinha conforme o tempo
+    // passa e novos meses vão tendo ocorrências (a rolagem vertical do
+    // quadro evita que ela empurre o resto da página para baixo).
+    const dados = agruparInibidasPorMes(ocorrencias);
 
     thead.innerHTML = `
       <tr>
         <th>Mês</th>
-        ${REGIONAIS.map((r) => `<th>${escapeHtml(r.nome)}</th>`).join("")}
+        ${REGIONAIS.map((r) => `<th>${escapeHtml(r.nome)}${r.responsavel ? `<span class="th-responsavel">${escapeHtml(r.responsavel)}</span>` : ""}</th>`).join("")}
         <th>Total</th>
       </tr>
     `;
