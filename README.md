@@ -1,8 +1,16 @@
 # Painel de Ocorrências — Tenda Atacado
 
 Aplicativo web simples (Node.js + Express) para registrar ocorrências de
-roubo. Acesso protegido por senha única, compartilhada entre os
-funcionários/gerentes.
+roubo. Acesso protegido por senha, com dois níveis:
+
+- **Senha comum** (funcionários/gerentes): só vê e usa o formulário de
+  registro de ocorrência — não enxerga a lista de registros de outras
+  pessoas, os painéis por regional/loja nem os gráficos.
+- **Senha de administrador**: enxerga tudo isso, vê quem registrou cada
+  ocorrência, pode **confirmar** (ou desfazer a confirmação de) um
+  registro para auditar o que foi lançado, e um novo quadro mostra a
+  **estatística mensal de ocorrências inibidas por regional** (uma
+  coluna para cada uma das 4 regionais, uma linha por mês).
 
 ## Rodar localmente
 
@@ -11,8 +19,18 @@ npm install
 npm start
 ```
 
-Acesse http://localhost:3001 — senha padrão: `tenda2026`
-(pode mudar definindo a variável de ambiente `SENHA_PAINEL`).
+Acesse http://localhost:3001 — senhas padrão:
+- Senha comum: `tenda123@` (variável de ambiente `SENHA_PAINEL`)
+- Senha de administrador: `admin123@` (variável de ambiente `SENHA_ADMIN`)
+
+**Troque as duas antes de colocar no ar.** Quem entrar com a senha de
+administrador vê um selo "Administrador" no topo do painel, o painel
+completo de estatísticas e navegação, e em cada ocorrência uma etiqueta
+"Confirmada"/"Pendente" com o botão para confirmar o registro (fica
+salvo quem confirmou e quando). Um filtro "Só pendentes de confirmação"
+também aparece na tela de "Ocorrências recentes" só para o
+administrador. Quem entrar com a senha comum vê apenas o formulário
+de registro.
 
 ## Colocar no GitHub
 
@@ -38,8 +56,8 @@ serviço de hospedagem. Recomendo o **Render**:
 3. Configure:
    - **Build Command:** `npm install`
    - **Start Command:** `npm start`
-4. Em "Environment", adicione a variável `SENHA_PAINEL` com a senha que
-   quiser usar.
+4. Em "Environment", adicione as variáveis `SENHA_PAINEL` (senha comum) e
+   `SENHA_ADMIN` (senha de administrador) com as senhas que quiser usar.
 5. Clique em "Create Web Service". Em alguns minutos o Render dá um link
    tipo `https://tenda-atacado-painel.onrender.com` — esse é o link que
    você compartilha com os funcionários.
