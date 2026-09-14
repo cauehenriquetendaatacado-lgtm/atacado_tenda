@@ -514,11 +514,8 @@
   }
   .tooltip-regional{
     display:none;
-    position:absolute;
-    left:50%;
-    bottom:calc(100% + 10px);
-    transform:translateX(-50%);
-    z-index:20;
+    position:fixed;
+    z-index:60;
     background:var(--panel-2);
     border:1px solid var(--focus);
     border-radius:6px;
@@ -530,6 +527,7 @@
   }
   .grafico-coluna-regional:hover .tooltip-regional,
   .grafico-coluna-regional:focus-visible .tooltip-regional{ display:block; }
+  .grafico-coluna-regional:hover{ filter:none; }
   .tooltip-regional .tooltip-linha{
     display:flex;
     justify-content:space-between;
@@ -868,11 +866,8 @@
 
   .tooltip-mes{
     display:none;
-    position:absolute;
-    left:50%;
-    bottom:calc(100% + 10px);
-    transform:translateX(-50%);
-    z-index:20;
+    position:fixed;
+    z-index:60;
     background:var(--panel-2);
     border:1px solid var(--focus);
     border-radius:6px;
@@ -897,10 +892,8 @@
 
   .tooltip-segmento{
     display:none;
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    z-index:40;
+    position:fixed;
+    z-index:70;
     background:var(--panel-2);
     border:1px solid var(--focus);
     border-radius:6px;
@@ -1740,13 +1733,13 @@
       `;
     }).join("");
 
-    // Tooltip individual por segmento: posicionado via JS para nunca ficar
-    // coberto pelos segmentos vizinhos empilhados acima dele.
+    // Tooltip individual por segmento: posicionado via JS (position:fixed) para
+    // nunca ficar cortado pelo card com rolagem horizontal, nem vazar da tela.
     barras.querySelectorAll(".coluna-mes-inibida").forEach((coluna) => {
       const tooltipMes = coluna.querySelector(".tooltip-mes");
       if(tooltipMes){
-        coluna.addEventListener("mouseenter", () => ajustarTooltipHorizontal(coluna, tooltipMes));
-        coluna.addEventListener("focus", () => ajustarTooltipHorizontal(coluna, tooltipMes));
+        coluna.addEventListener("mouseenter", () => posicionarTooltip(coluna, tooltipMes));
+        coluna.addEventListener("focus", () => posicionarTooltip(coluna, tooltipMes));
       }
       const tooltipSeg = coluna.querySelector(".tooltip-segmento");
       if(!tooltipSeg) return;
@@ -1758,12 +1751,9 @@
             <div class="tooltip-linha"><span>Ocorrências</span><strong>${escapeHtml(seg.dataset.qtd)}</strong></div>
             <div class="tooltip-linha"><span>Valor recuperado</span><strong>${escapeHtml(seg.dataset.valor)}</strong></div>
           `;
-          const alturaColuna = coluna.offsetHeight;
-          const distanciaTopo = seg.offsetTop; // relativo à coluna (barra-empilhada é o único filho posicionador acima do rótulo)
-          tooltipSeg.style.bottom = `${alturaColuna - distanciaTopo + 6}px`;
           tooltipSeg.style.display = "block";
           coluna.classList.add("segmento-ativo");
-          ajustarTooltipHorizontal(coluna, tooltipSeg);
+          posicionarTooltip(seg, tooltipSeg);
         });
         seg.addEventListener("mouseleave", () => {
           tooltipSeg.style.display = "none";
@@ -1980,26 +1970,34 @@
       });
       const tip = col.querySelector(".tooltip-regional");
       if(tip){
-        col.addEventListener("mouseenter", () => ajustarTooltipHorizontal(col, tip));
-        col.addEventListener("focus", () => ajustarTooltipHorizontal(col, tip));
+        col.addEventListener("mouseenter", () => posicionarTooltip(col, tip));
+        col.addEventListener("focus", () => posicionarTooltip(col, tip));
       }
     });
   }
 
-  // Mantém os balões de dica dentro da largura da tela em vez de vazar
-  // pela borda direita/esquerda em telas de celular estreitas.
-  function ajustarTooltipHorizontal(ancora, tooltip){
+  // Posiciona um tooltip com position:fixed com base nas coordenadas reais da
+  // âncora na tela, para nunca ficar cortado por um card com rolagem (overflow)
+  // nem vazar pela borda esquerda/direita/superior da tela.
+  function posicionarTooltip(ancora, tooltip){
     const rect = ancora.getBoundingClientRect();
-    const largura = tooltip.offsetWidth || parseFloat(getComputedStyle(tooltip).minWidth) || 190;
-    const centro = rect.left + rect.width / 2;
     const margem = 8;
-    let deslocamento = 0;
-    if(centro - largura / 2 < margem){
-      deslocamento = margem - (centro - largura / 2);
-    } else if(centro + largura / 2 > window.innerWidth - margem){
-      deslocamento = (window.innerWidth - margem) - (centro + largura / 2);
+    const largura = tooltip.offsetWidth || parseFloat(getComputedStyle(tooltip).minWidth) || 190;
+    const altura = tooltip.offsetHeight || 90;
+
+    let esquerda = rect.left + rect.width / 2 - largura / 2;
+    esquerda = Math.max(margem, Math.min(esquerda, window.innerWidth - largura - margem));
+
+    let topo = rect.top - altura - 10;
+    if(topo < margem){
+      topo = Math.min(rect.bottom + 10, window.innerHeight - altura - margem);
     }
-    tooltip.style.transform = `translateX(calc(-50% + ${deslocamento}px))`;
+
+    tooltip.style.left = `${esquerda}px`;
+    tooltip.style.top = `${topo}px`;
+    tooltip.style.right = "auto";
+    tooltip.style.bottom = "auto";
+    tooltip.style.transform = "none";
   }
 
   function obterFiltros(){
