@@ -20,6 +20,7 @@ types.setTypeParser(1082, (val) => val);
 const app = express();
 const PORT = process.env.PORT || 3001;
 const SENHA = process.env.SENHA_PAINEL || "tenda123@";
+const SENHA_GERENTE = process.env.SENHA_GERENTE || "gerente123@";
 const SENHA_ADMIN = process.env.SENHA_ADMIN || "admin123@";
 const DB_FILE = path.join(__dirname, "dados.json");
 
@@ -216,15 +217,18 @@ async function confirmarOcorrencia(id, confirmado, nomeAdmin) {
 }
 
 // ---------- Autenticacao ----------
-// Duas senhas compartilhadas: a normal (funcionarios/gerentes) e a de
-// administrador. Ambas dao acesso ao painel; so a de administrador libera
-// as acoes de auditoria (ver quem registrou o que e confirmar registros).
+// Tres senhas compartilhadas: a normal (funcionarios), a de gerente e a de
+// administrador. Todas dao acesso ao painel de registro; so a de
+// administrador libera as acoes de auditoria (ver quem registrou o que e
+// confirmar registros). A senha de gerente registra ocorrencias como a
+// comum, mas sem o campo de anexar foto.
 function checarSenha(req, res, next) {
   const senha = req.headers["x-senha"];
-  if (senha !== SENHA && senha !== SENHA_ADMIN) {
+  if (senha !== SENHA && senha !== SENHA_GERENTE && senha !== SENHA_ADMIN) {
     return res.status(401).json({ erro: "Senha incorreta" });
   }
   req.ehAdmin = senha === SENHA_ADMIN;
+  req.ehGerente = senha === SENHA_GERENTE;
   next();
 }
 
@@ -237,8 +241,12 @@ function checarAdmin(req, res, next) {
 
 app.post("/api/login", (req, res) => {
   const { senha } = req.body;
-  if (senha === SENHA || senha === SENHA_ADMIN) {
-    return res.json({ ok: true, admin: senha === SENHA_ADMIN });
+  if (senha === SENHA || senha === SENHA_GERENTE || senha === SENHA_ADMIN) {
+    return res.json({
+      ok: true,
+      admin: senha === SENHA_ADMIN,
+      gerente: senha === SENHA_GERENTE,
+    });
   }
   return res.status(401).json({ ok: false, erro: "Senha incorreta" });
 });
