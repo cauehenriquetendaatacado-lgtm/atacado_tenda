@@ -1,0 +1,2839 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Painel de Ocorrências — Tenda Atacado</title>
+<link rel="manifest" href="/manifest.webmanifest" />
+<meta name="theme-color" content="#0a1929" />
+<link rel="icon" href="/icon-192.png" type="image/png" />
+<link rel="apple-touch-icon" href="/icon-192.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Tenda Atacado" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg: #0a1929;
+    --panel: #10233a;
+    --panel-2: #163049;
+    --line: #1e4266;
+    --text: #e9f2fb;
+    --muted: #7ea3c4;
+    --amber: #4fc3f7;
+    --red: #e05a56;
+    --green: #45b57e;
+    --focus: #6fd0ff;
+    --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+    --font-body: "Inter", "Segoe UI", -apple-system, sans-serif;
+    --font-data: "IBM Plex Mono", "Consolas", monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{ overflow-x:hidden; max-width:100%; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family: var(--font-body);
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    width:100%;
+  }
+  .top{
+    background:var(--panel);
+    border-bottom:3px solid var(--amber);
+    padding:18px 20px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .top h1{
+    font-family: var(--font-display);
+    font-size:1.2rem;
+    font-weight:600;
+    margin:0;
+    letter-spacing:0.01em;
+  }
+  .top .eyebrow{
+    font-family: var(--font-body);
+    color:var(--amber);
+    font-size:0.7rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.16em;
+    display:block;
+    margin-bottom:3px;
+  }
+  #sair{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:6px 12px;
+    border-radius:4px;
+    cursor:pointer;
+    font-size:0.8rem;
+  }
+  #sair:hover{ color:var(--text); border-color:var(--muted); }
+
+  /* LOGIN */
+  #tela-login{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .login-box{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-top:3px solid var(--amber);
+    padding:32px 28px;
+    width:100%;
+    max-width:340px;
+    border-radius:6px;
+  }
+  .login-box .eyebrow{
+    color:var(--amber);
+    font-size:0.7rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.16em;
+  }
+  .login-box h2{ font-family: var(--font-display); margin:6px 0 20px; font-size:1.4rem; font-weight:600; }
+  .login-box input{ width:100%; }
+  .login-box button{ width:100%; margin-top:12px; }
+  #erro-login{ color:var(--red); font-size:0.85rem; margin-top:10px; min-height:1em; }
+
+  main{ max-width:920px; margin:0 auto; padding:20px; width:100%; }
+  @media (max-width:380px){
+    main{ padding:12px; }
+    .top{ padding:14px 12px; }
+  }
+
+  .resumo{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+    margin-bottom:22px;
+  }
+  .cartao{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:16px 18px;
+  }
+  .cartao .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; }
+  .cartao .valor{ font-family: var(--font-data); font-size:1.7rem; font-weight:600; margin-top:5px; }
+
+  #btn-modo{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:6px;
+    padding:16px 18px;
+    text-align:left;
+    cursor:pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  #btn-modo:hover{ border-color:var(--focus); }
+  #btn-modo:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  #btn-modo .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; }
+  #btn-modo .valor{ font-family: var(--font-data); font-size:1.7rem; font-weight:600; margin-top:5px; transition: color 0.15s ease; }
+  #btn-modo .dica{ color:var(--muted); font-size:0.72rem; margin-top:6px; }
+  #btn-modo.modo-quadrilha .valor{ color:var(--red); }
+  #btn-modo.modo-geral .valor{ color:var(--green); }
+
+  form#form-ocorrencia{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:18px;
+    margin-bottom:24px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+  }
+  form#form-ocorrencia .full{ grid-column: 1 / -1; }
+  label{ display:block; font-size:0.78rem; font-weight:500; color:var(--muted); margin-bottom:5px; letter-spacing:0.01em; }
+  input, textarea, select{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:9px 10px;
+    border-radius:4px;
+    font-size:0.92rem;
+    font-family: var(--font-body);
+  }
+  input:focus-visible, textarea:focus-visible, button:focus-visible, select:focus-visible{
+    outline:2px solid var(--focus); outline-offset:1px;
+  }
+  input[readonly]{
+    opacity:0.75;
+    cursor:not-allowed;
+  }
+  textarea{ min-height:70px; resize:vertical; }
+  .checkbox-linha{ display:flex; align-items:center; gap:8px; }
+  .checkbox-linha input{ width:auto; }
+  .checkbox-linha label{ margin:0; color:var(--text); font-size:0.9rem; }
+
+  /* Botões de seleção (toggle) — substituem os checkboxes de quadrilha/inibida/apoio/monitoramento */
+  .campo-toggle{ position:relative; align-self:end; }
+  .toggle-check{
+    position:absolute;
+    width:1px; height:1px;
+    padding:0; margin:0;
+    overflow:hidden;
+    clip:rect(0 0 0 0);
+    white-space:nowrap;
+    border:0;
+  }
+  .toggle-botao{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:9px 12px;
+    border-radius:20px;
+    font-size:0.86rem;
+    font-weight:500;
+    cursor:pointer;
+    user-select:none;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  }
+  .toggle-botao:hover{ border-color:var(--muted); }
+  .toggle-check:focus-visible + .toggle-botao{ outline:2px solid var(--focus); outline-offset:2px; }
+  .toggle-marca{
+    flex-shrink:0;
+    width:14px; height:14px;
+    border-radius:50%;
+    border:1.5px solid var(--line);
+    position:relative;
+    transition: border-color 0.15s ease;
+  }
+  .toggle-marca::after{
+    content:"";
+    position:absolute;
+    inset:3px;
+    border-radius:50%;
+    background:transparent;
+    transition: background 0.15s ease;
+  }
+  .toggle-check:checked + .toggle-botao{ background:var(--panel-2); color:var(--text); }
+  .toggle-check:checked + .toggle-botao .toggle-marca::after{ background:currentColor; }
+  /* cor por significado, igual à já usada nas tags e no gráfico de apoio/quadrilha/monitoramento */
+  .toggle-check:checked + .toggle-quadrilha{ border-color:var(--red); color:var(--red); }
+  .toggle-check:checked + .toggle-inibido{ border-color:var(--green); color:var(--green); }
+  .toggle-check:checked + .toggle-apoio{ border-color:var(--amber); color:var(--amber); }
+  .toggle-check:checked + .toggle-monitoramento{ border-color:var(--green); color:var(--green); }
+
+  button{
+    background:var(--amber);
+    color:#1b1500;
+    border:none;
+    padding:10px 16px;
+    border-radius:4px;
+    font-family: var(--font-display);
+    font-weight:600;
+    letter-spacing:0.01em;
+    cursor:pointer;
+    font-size:0.9rem;
+  }
+  button:hover{ filter:brightness(1.08); }
+
+  .regionais{ margin-bottom:24px; }
+  #lista-regionais{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap:12px;
+  }
+  .cartao-regional{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:3px solid var(--amber);
+    border-radius:6px;
+    padding:14px 16px;
+    cursor:pointer;
+    transition: border-color 0.15s ease;
+  }
+  .cartao-regional:hover{ border-color:var(--focus); }
+  .cartao-regional.ativo{ border-left-color:var(--focus); background:var(--panel-2); }
+  .cartao-regional .nome-regional{ font-family: var(--font-display); font-weight:600; font-size:0.94rem; margin-bottom:8px; }
+  .cartao-regional .linha-metrica{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.8rem;
+    color:var(--muted);
+    margin-top:3px;
+  }
+  .cartao-regional .linha-metrica strong{ font-family: var(--font-data); color:var(--text); font-weight:600; }
+  .cartao-regional.ativo .linha-metrica strong{ color:var(--focus); }
+  .sem-regional{ color:var(--muted); font-size:0.85rem; padding:8px 0; }
+
+  .verificar{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:16px 18px;
+    margin-bottom:22px;
+  }
+  .verificar .lista-titulo{ margin-bottom:12px; }
+  .verificar .linha-filtros{
+    display:grid;
+    grid-template-columns: 1.2fr 1.2fr 1fr 1fr auto auto auto;
+    gap:10px;
+    align-items:end;
+  }
+  .verificar .campo label{ margin-bottom:5px; }
+  .verificar .campo-check{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding-bottom:9px;
+  }
+  .verificar .campo-check input{ width:auto; }
+  .verificar .campo-check label{ margin:0; color:var(--text); font-size:0.85rem; }
+  #btn-limpar-filtro{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--muted);
+  }
+  #btn-limpar-filtro:hover{ color:var(--text); border-color:var(--muted); }
+  #resultado-filtro{
+    color:var(--muted);
+    font-size:0.8rem;
+    margin-top:12px;
+  }
+  @media (max-width:720px){
+    .verificar .linha-filtros{ grid-template-columns: 1fr 1fr; }
+  }
+
+  .lista-titulo{
+    color:var(--muted);
+    font-family: var(--font-display);
+    font-size:0.78rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    margin:0 0 10px;
+  }
+  .ocorrencia{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:3px solid var(--line);
+    border-radius:4px;
+    padding:14px 16px;
+    margin-bottom:10px;
+  }
+  .ocorrencia.quadrilha{ border-left-color:var(--red); }
+  .ocorrencia-foto{ display:block; width:100%; max-height:160px; object-fit:cover; border-radius:6px; margin-bottom:10px; }
+  .modal-foto{ display:block; width:100%; max-height:320px; object-fit:contain; border-radius:6px; margin:10px 0; background:var(--bg); cursor:zoom-in; }
+  .ocorrencia .cabecalho{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .ocorrencia .loja{ font-family: var(--font-display); font-weight:600; }
+  .regional-tag{ color:var(--muted); font-weight:400; font-size:0.85rem; font-family: var(--font-body); }
+  .ocorrencia .data{ font-family: var(--font-data); color:var(--muted); font-size:0.8rem; }
+  .ocorrencia .descricao{ margin:8px 0; color:var(--text); font-size:0.92rem; line-height:1.4; }
+  .ocorrencia .rodape{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:0.85rem;
+  }
+  .tag-quadrilha{
+    font-family: var(--font-display);
+    color:var(--red);
+    font-size:0.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    border:1px solid var(--red);
+    border-radius:3px;
+    padding:1px 6px;
+  }
+  .valor-recuperado{ font-family: var(--font-data); color:var(--green); font-weight:600; }
+  .excluir{
+    background:none;
+    border:none;
+    color:var(--muted);
+    cursor:pointer;
+    font-size:0.8rem;
+    padding:2px 6px;
+  }
+  .excluir:hover{ color:var(--red); }
+  .vazio{ color:var(--muted); text-align:center; padding:30px 10px; font-size:0.9rem; }
+
+  .cartao-nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:3px solid var(--amber);
+    border-radius:6px;
+    padding:16px 18px;
+    width:100%;
+    text-align:left;
+    cursor:pointer;
+    margin-bottom:24px;
+    transition: border-color 0.15s ease;
+  }
+  .cartao-nav:hover{ border-color:var(--focus); }
+  .cartao-nav .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; }
+  .cartao-nav .valor{ font-family: var(--font-data); font-size:1.4rem; font-weight:600; margin-top:5px; color:var(--text); }
+  .cartao-nav .seta{ font-size:1.5rem; color:var(--amber); line-height:1; }
+
+
+  /* ---------- FaceID (cadastro) e Ranking ---------- */
+  .campo-faceid{ grid-column:1 / -1; }
+  .abas-faceid{ display:flex; gap:8px; }
+  .abas-faceid input{ position:absolute; opacity:0; pointer-events:none; }
+  .abas-faceid label{
+    flex:1; text-align:center; cursor:pointer; margin:0;
+    background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:11px 10px; color:var(--muted); font-weight:600; font-size:0.9rem;
+    text-transform:none; letter-spacing:0; transition:all 0.15s ease;
+  }
+  .abas-faceid label:hover{ border-color:var(--muted); }
+  .abas-faceid input:focus-visible + label{ outline:2px solid var(--focus); outline-offset:2px; }
+  .abas-faceid input:checked + label{ background:var(--panel-2); color:var(--text); border-color:var(--focus); }
+  .abas-faceid input#faceid-sim:checked + label{ border-color:var(--green); color:var(--green); }
+  .abas-faceid .wrap-aba{ position:relative; flex:1; display:flex; }
+
+  .abas-ranking{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .abas-ranking button{
+    flex:1; min-width:100px; background:var(--panel); border:1px solid var(--line);
+    color:var(--muted); border-radius:6px; padding:10px 12px; cursor:pointer;
+    font-family:var(--font-display); font-weight:600; font-size:0.9rem;
+  }
+  .abas-ranking button.ativa{ background:var(--panel-2); color:var(--text); border-color:var(--focus); }
+  .abas-sec{ margin-top:8px; margin-bottom:0 !important; }
+  .abas-sec button{ padding:5px 10px !important; font-size:0.78rem !important; }
+  .abas-sec button .qtd{ display:inline !important; margin-left:6px; }
+  .ranking-topo .col-abas{ flex:1; min-width:260px; }
+  .abas-ranking button .qtd{ display:block; font-family:var(--font-data); font-size:0.75rem; font-weight:500; color:var(--muted); margin-top:2px; }
+  .ranking-topo{ display:flex; gap:12px; align-items:stretch; margin-bottom:12px; flex-wrap:wrap; }
+  .ranking-topo .abas-ranking{ margin-bottom:0; }
+  .lider-mes{
+    flex:0 1 340px; min-width:240px; background:linear-gradient(135deg, rgba(245,197,66,.16), var(--panel));
+    border:1px solid #f5c542; border-radius:8px; padding:10px 14px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .lider-mes .trofeu{ font-size:2rem; line-height:1; }
+  .lider-mes .rotulo-lider{ font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:#f5c542; font-weight:600; }
+  .lider-mes .nome-lider{ font-weight:700; font-size:1.1rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lider-mes .det-lider{ color:var(--muted); font-family:var(--font-data); font-size:0.75rem; margin-top:2px; }
+  .lider-mes .det-lider b{ color:var(--green); font-weight:600; }
+  .lider-mes > div:last-child{ min-width:0; }
+  body.modo-ranking .top{ display:none; }
+  body.modo-ranking main{ max-width:none; width:100%; padding:8px 12px; }
+  body.modo-ranking .pagina-header{ margin-bottom:8px; }
+  #btn-tela-cheia{ margin-left:auto; }
+  #lista-ranking{
+    display:grid; gap:6px; --rk-s:1;
+    grid-template-columns:repeat(var(--rk-cols,1), minmax(0,1fr));
+    grid-auto-rows:var(--rk-h, auto);
+  }
+  .ranking-item{
+    display:flex; align-items:center; gap:10px; background:var(--panel);
+    border:1px solid var(--line); border-radius:6px; padding:4px 12px; min-height:0; overflow:hidden;
+    font-size:calc(1rem * var(--rk-s));
+  }
+  .ranking-pos{
+    font-family:var(--font-data); font-weight:600; font-size:1.05em; width:2.2em;
+    text-align:center; color:var(--muted); flex-shrink:0;
+  }
+  .ranking-item.top1{ background:linear-gradient(90deg, rgba(245,197,66,.30), var(--panel) 75%); border:2px solid #f5c542; box-shadow:0 0 16px rgba(245,197,66,.28); }
+  .ranking-item.top2{ background:linear-gradient(90deg, rgba(192,200,208,.24), var(--panel) 75%); border:2px solid #c0c8d0; box-shadow:0 0 12px rgba(192,200,208,.18); }
+  .ranking-item.top3{ background:linear-gradient(90deg, rgba(205,138,84,.26), var(--panel) 75%); border:2px solid #cd8a54; box-shadow:0 0 12px rgba(205,138,84,.2); }
+  .ranking-item.top1 .ranking-pos, .ranking-item.top2 .ranking-pos, .ranking-item.top3 .ranking-pos{ font-size:1.6em; }
+  .ranking-item.top1 .ranking-nome{ font-size:1.18em; font-weight:700; }
+  .ranking-item.top2 .ranking-nome, .ranking-item.top3 .ranking-nome{ font-size:1.1em; font-weight:700; }
+  .ranking-item.top1 .ranking-qtd{ color:#f5c542; }
+  .ranking-item.top2 .ranking-qtd{ color:#dfe5ea; }
+  .ranking-item.top3 .ranking-qtd{ color:#e0a070; }
+  .ranking-info{ flex:1; min-width:0; }
+  .ranking-nome{ font-weight:600; font-size:1em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ranking-sub{ color:var(--muted); font-size:0.78em; margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ranking-sub .verde{ color:var(--green); font-family:var(--font-data); }
+  .ranking-barra{ height:0.4em; min-height:4px; background:var(--panel-2); border-radius:3px; margin-top:0.35em; overflow:hidden; }
+  .ranking-barra span{ display:block; height:100%; background:var(--green); border-radius:3px; transition:width .6s ease; }
+  .ranking-meta{ color:var(--muted); font-family:var(--font-data); font-size:0.7em; margin-top:2px; }
+  .ranking-meta b{ color:var(--green); font-weight:600; }
+  .ranking-qtd{ font-family:var(--font-data); font-size:1.15em; white-space:nowrap; font-weight:600; text-align:right; flex-shrink:0; line-height:1.1; }
+  .ranking-qtd small{ display:block; font-size:0.45em; color:var(--muted); font-weight:500; text-transform:uppercase; letter-spacing:0.08em; }
+  /* Pódio: 1º, 2º e 3º em cartões na vertical */
+  #podio-ranking{ display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:10px; margin-bottom:10px; }
+  #podio-ranking:empty{ display:none; }
+  .ranking-item.podio-item{
+    flex-direction:column; justify-content:center; align-items:center; text-align:center;
+    gap:4px; padding:12px 14px; font-size:clamp(0.95rem, 2.1vh, 1.5rem);
+  }
+  .ranking-item.podio-item .ranking-pos{ font-size:2.4em; width:auto; line-height:1.1; }
+  .ranking-item.podio-item .ranking-info{ flex:none; width:100%; }
+  .ranking-item.podio-item .ranking-qtd{ text-align:center; font-size:1.5em; }
+  .ranking-item.podio-item.top1{ transform:scale(1.02); }
+  .ranking-item.podio-item.top1 .ranking-nome{ font-size:1.3em; }
+  .ranking-item.podio-item.top2 .ranking-nome, .ranking-item.podio-item.top3 .ranking-nome{ font-size:1.15em; }
+  .ranking-item.podio-item .ranking-sub{ white-space:normal; }
+  .ranking-barra span.cheia{
+    background:linear-gradient(90deg,#22c55e,#bef264,#22c55e); background-size:200% 100%;
+    animation:brilho-barra 1.4s linear infinite; box-shadow:0 0 10px rgba(74,222,128,.9);
+  }
+  @keyframes brilho-barra{ to{ background-position:-200% 0; } }
+  .ranking-item{ cursor:pointer; }
+  .ranking-item:hover .ranking-nome{ text-decoration:underline; text-underline-offset:3px; }
+  .ranking-item:hover{ border-color:var(--focus); }
+  #modal-evolucao{ position:fixed; inset:0; z-index:60; background:rgba(5,12,20,.78); display:none; align-items:center; justify-content:center; padding:16px; }
+  .evo-caixa{ background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--focus); border-radius:8px; padding:20px 22px; width:100%; max-width:860px; max-height:92vh; overflow-y:auto; }
+  .evo-topo{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .evo-eyebrow{ color:var(--focus); font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.14em; }
+  .evo-nome{ font-size:1.6rem; font-weight:800; margin:2px 0 0; font-family:var(--font-display); }
+  .evo-x{ background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:6px; padding:6px 12px; cursor:pointer; font-size:1rem; }
+  .evo-x:hover{ color:var(--text); border-color:var(--muted); }
+  .evo-stats{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:10px; margin:14px 0; }
+  .evo-stat{ background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:8px 12px; }
+  .evo-stat .r{ color:var(--muted); font-size:.68rem; text-transform:uppercase; letter-spacing:.09em; font-weight:600; }
+  .evo-stat .v{ font-family:var(--font-data); font-size:1.15rem; font-weight:600; margin-top:2px; }
+  .evo-stat .v.verde{ color:var(--green); } .evo-stat .v.azul{ color:var(--focus); }
+  .evo-grafico{ position:relative; background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:8px 6px 2px; }
+  .evo-grafico svg{ display:block; width:100%; height:auto; }
+  .evo-legenda{ display:flex; gap:16px; flex-wrap:wrap; font-size:.78rem; color:var(--muted); margin:8px 2px 0; }
+  .evo-legenda i{ display:inline-block; width:18px; height:3px; border-radius:2px; vertical-align:middle; margin-right:6px; }
+  .evo-tip{ position:absolute; pointer-events:none; background:rgba(5,12,20,.94); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-size:.78rem; line-height:1.5; white-space:nowrap; display:none; z-index:2; }
+  .evo-tip b{ font-family:var(--font-data); }
+  .evo-acoes{ display:flex; gap:10px; margin-top:14px; justify-content:flex-end; flex-wrap:wrap; }
+  .ranking-meta .selo-meta{ color:#f5c542; font-weight:700; margin-left:6px; }
+  #fogos-canvas{ position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none; z-index:9998; }
+  .banner-vitoria{
+    position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:9999; pointer-events:none;
+    text-align:center; padding:28px 48px; border-radius:16px; border:2px solid #f5c542;
+    background:rgba(8,16,28,.82); box-shadow:0 0 40px rgba(245,197,66,.5);
+    animation:entrada-vitoria .6s cubic-bezier(.2,1.4,.4,1) both;
+  }
+  .banner-vitoria .bv-trofeu{ font-size:4.5rem; line-height:1; }
+  .banner-vitoria .bv-titulo{ font-size:1.1rem; letter-spacing:.2em; color:#f5c542; font-weight:700; margin-top:6px; }
+  .banner-vitoria .bv-nome{ font-size:2.4rem; font-weight:800; color:#fff; margin-top:4px; }
+  .banner-vitoria .bv-valor{ font-family:var(--font-data); color:#4ade80; font-size:1.3rem; margin-top:4px; }
+  @keyframes entrada-vitoria{ from{ transform:translate(-50%,-50%) scale(.3); opacity:0; } to{ transform:translate(-50%,-50%) scale(1); opacity:1; } }
+  #lista-ranking[data-dens="media"] .ranking-sub{ display:none; }
+  #lista-ranking[data-dens="alta"] .ranking-sub,
+  #lista-ranking[data-dens="alta"] .ranking-meta{ display:none; }
+
+  .painel-secundario{
+    display:grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap:16px;
+    align-items:stretch;
+    margin-bottom:24px;
+  }
+  .painel-secundario .coluna-nav{
+    display:flex;
+    flex-direction:column;
+  }
+  .painel-secundario .coluna-nav .cartao-nav{ margin-bottom:0; flex:1; }
+  .painel-secundario .coluna-nav .cartao-nav + .cartao-nav{ margin-top:16px; }
+  @media (max-width: 640px){
+    .painel-secundario{ grid-template-columns: 1fr; }
+  }
+
+  .cartao-grafico{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:16px 18px;
+  }
+  .cartao-grafico .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; margin-bottom:14px; }
+  .grafico-barras{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-around;
+    gap:14px;
+    height:150px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:2px 2px 4px;
+  }
+  .grafico-coluna{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height:100%;
+    flex:1 1 0;
+    min-width:64px;
+  }
+  .grafico-valor{
+    font-family: var(--font-data);
+    font-size:1.05rem;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:6px;
+  }
+  .grafico-barra{
+    width:100%;
+    max-width:52px;
+    border-radius:4px 4px 0 0;
+    min-height:4px;
+    transition: height 0.25s ease;
+  }
+  .grafico-barra.apoio-copia{ background:var(--amber); }
+  .grafico-barra.quadrilha{ background:var(--red); }
+  .grafico-barra.monitoramento{ background:var(--green); }
+  .grafico-rotulo{
+    margin-top:8px;
+    font-size:0.72rem;
+    color:var(--muted);
+    text-align:center;
+    line-height:1.3;
+  }
+
+  .cartao-grafico-regionais{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:16px 18px;
+    margin-bottom:24px;
+  }
+  .cartao-grafico-regionais .rotulo{ color:var(--muted); font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; margin-bottom:14px; }
+  .grafico-barras-regionais{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-around;
+    gap:10px;
+    height:150px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:2px 2px 4px;
+  }
+  .grafico-coluna-regional{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height:100%;
+    flex:1 1 0;
+    min-width:66px;
+    cursor:pointer;
+    background:none;
+    border:none;
+    padding:0;
+    font-family: var(--font-body);
+  }
+  .grafico-coluna-regional .grafico-barra{
+    max-width:60px;
+  }
+  .grafico-coluna-regional:hover .grafico-rotulo{ color:var(--text); }
+  .grafico-recuperado{
+    margin-top:3px;
+    font-size:0.68rem;
+    color:var(--green);
+    font-family: var(--font-data);
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .tooltip-regional{
+    display:none;
+    position:fixed;
+    z-index:60;
+    background:var(--panel-2);
+    border:1px solid var(--focus);
+    border-radius:6px;
+    padding:10px 12px;
+    min-width:190px;
+    max-width:min(220px, calc(100vw - 24px));
+    box-shadow:0 8px 20px rgba(0,0,0,0.45);
+    text-align:left;
+  }
+  .grafico-coluna-regional:hover .tooltip-regional,
+  .grafico-coluna-regional:focus-visible .tooltip-regional{ display:block; }
+  .grafico-coluna-regional:hover{ filter:none; }
+  .tooltip-regional .tooltip-linha{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:0.78rem;
+    padding:3px 0;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .tooltip-regional .tooltip-linha strong{ font-family: var(--font-data); color:var(--text); font-weight:600; }
+  .grafico-barra.cor-1{ background:var(--amber); }
+  .grafico-barra.cor-2{ background:var(--focus); }
+  .grafico-barra.cor-3{ background:var(--green); }
+  .grafico-barra.cor-4{ background:var(--red); }
+
+  .grafico-pizza-wrap{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    flex-wrap:wrap;
+  }
+  .grafico-regionais-linha{
+    display:flex;
+    align-items:center;
+    gap:28px;
+    flex-wrap:wrap;
+  }
+  .grafico-regionais-linha .grafico-pizza-wrap{ flex:1 1 220px; }
+  .grafico-regionais-linha .grafico-barras-regionais{ flex:1 1 220px; }
+  @media (max-width:720px){
+    .grafico-regionais-linha{ flex-direction:column; align-items:stretch; }
+  }
+  .grafico-pizza{
+    width:140px;
+    height:140px;
+    flex-shrink:0;
+  }
+  .grafico-legenda{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    flex:1;
+    min-width:150px;
+  }
+  .legenda-item{
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    font-size:0.82rem;
+    color:var(--muted);
+    background:none;
+    border:none;
+    padding:2px 0;
+    text-align:left;
+    font-family: var(--font-body);
+  }
+  .legenda-item.clicavel{ cursor:pointer; }
+  .legenda-item.clicavel:hover{ color:var(--text); }
+  .legenda-item.clicavel:hover .legenda-ponto{ filter:brightness(1.2); }
+  .legenda-ponto{
+    width:10px; height:10px;
+    border-radius:50%;
+    flex-shrink:0;
+    margin-top:3px;
+  }
+  .legenda-info{ flex:1; min-width:0; }
+  .legenda-linha-principal{ display:flex; align-items:center; gap:8px; }
+  .legenda-nome{ flex:1; }
+  .legenda-valor{ font-family: var(--font-data); color:var(--text); font-weight:600; }
+  .legenda-sub{
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 10px;
+    font-size:0.72rem;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .legenda-sub .legenda-sub-recuperado{ color:var(--green); font-family: var(--font-data); font-weight:600; }
+  @media (max-width:520px){
+    .grafico-pizza-wrap{ flex-direction:column; align-items:flex-start; }
+  }
+
+  .pagina-header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:18px;
+  }
+  .pagina-header .lista-titulo{ margin:0; }
+  #btn-voltar{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:6px 12px;
+    border-radius:4px;
+    cursor:pointer;
+    font-size:0.85rem;
+  }
+  #btn-voltar:hover{ color:var(--text); border-color:var(--muted); }
+
+  .ocorrencia{ cursor:pointer; transition: border-color 0.15s ease; }
+  .ocorrencia:hover{ border-color:var(--focus); }
+
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(5,12,20,0.72);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .modal-caixa{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-top:3px solid var(--amber);
+    border-radius:6px;
+    padding:24px;
+    max-width:440px;
+    width:100%;
+    max-height:85vh;
+    overflow-y:auto;
+  }
+  .modal-caixa h3{ font-family: var(--font-display); margin:0 0 4px; font-size:1.15rem; }
+  .modal-eyebrow{ color:var(--amber); font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.14em; }
+  .modal-linha{ display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); font-size:0.88rem; }
+  .modal-linha:last-of-type{ border-bottom:none; }
+  .modal-linha span:first-child{ color:var(--muted); }
+  .modal-linha span:last-child{ font-family: var(--font-data); text-align:right; }
+  .modal-descricao{ margin:14px 0; padding:12px; background:var(--bg); border-radius:4px; font-size:0.9rem; line-height:1.5; }
+  .modal-acoes{ display:flex; gap:10px; margin-top:18px; }
+  .modal-acoes button{ flex:1; }
+  #modal-fechar{ background:none; border:1px solid var(--line); color:var(--muted); }
+  #modal-fechar:hover{ color:var(--text); border-color:var(--muted); }
+  #modal-excluir{ background:var(--red); color:#fff; }
+
+  .grid-lojas{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap:12px;
+    margin-top:12px;
+  }
+  .cartao-loja{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:3px solid var(--amber);
+    border-radius:6px;
+    padding:14px 16px;
+    cursor:pointer;
+    transition: border-color 0.15s ease;
+  }
+  .cartao-loja:hover, .cartao-loja:focus-visible{ border-color:var(--focus); }
+  .cartao-loja .codigo-loja{ font-family: var(--font-display); font-weight:600; font-size:0.94rem; margin-bottom:4px; }
+  .cartao-loja .total-ocorrencias-loja{ color:var(--muted); font-size:0.8rem; }
+  .cartao-loja .linha-metrica{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.8rem;
+    color:var(--muted);
+    margin-top:3px;
+  }
+  .cartao-loja .linha-metrica strong{ font-family: var(--font-data); color:var(--text); font-weight:600; }
+
+  .tooltip-loja{
+    display:none;
+    position:absolute;
+    left:0;
+    top:calc(100% + 6px);
+    z-index:20;
+    background:var(--panel-2);
+    border:1px solid var(--focus);
+    border-radius:6px;
+    padding:10px 12px;
+    min-width:190px;
+    max-width:min(220px, calc(100vw - 24px));
+    box-shadow:0 8px 20px rgba(0,0,0,0.45);
+  }
+  .cartao-loja:hover .tooltip-loja,
+  .cartao-loja:focus-visible .tooltip-loja,
+  .cartao-loja:focus-within .tooltip-loja{ display:block; }
+  .tooltip-loja .tooltip-linha{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:0.78rem;
+    padding:3px 0;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .tooltip-loja .tooltip-linha strong{ font-family: var(--font-data); color:var(--text); font-weight:600; }
+
+  .tooltip-ocorrencia{
+    display:none;
+    position:absolute;
+    left:0;
+    right:0;
+    top:calc(100% + 6px);
+    z-index:30;
+    background:var(--panel-2);
+    border:1px solid var(--focus);
+    border-radius:6px;
+    padding:10px 12px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.45);
+  }
+  .ocorrencia:hover .tooltip-ocorrencia,
+  .ocorrencia:focus-visible .tooltip-ocorrencia,
+  .ocorrencia:focus-within .tooltip-ocorrencia{ display:block; }
+  .tooltip-ocorrencia .tooltip-linha{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:0.78rem;
+    padding:3px 0;
+    color:var(--muted);
+  }
+  .tooltip-ocorrencia .tooltip-linha:not(:last-child){ border-bottom:1px solid var(--line); }
+  .tooltip-ocorrencia .tooltip-linha strong{ font-family: var(--font-data); color:var(--text); font-weight:600; text-align:right; }
+
+  .tag-inibida, .tag-nao-inibida{
+    font-family: var(--font-display);
+    font-size:0.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    border-radius:3px;
+    padding:1px 6px;
+    white-space:nowrap;
+  }
+  .tag-inibida{ color:var(--green); border:1px solid var(--green); }
+  .tag-nao-inibida{ color:var(--red); border:1px solid var(--red); }
+
+  .tag-confirmada, .tag-pendente{
+    font-family: var(--font-display);
+    font-size:0.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    border-radius:3px;
+    padding:1px 6px;
+    white-space:nowrap;
+  }
+  .tag-confirmada{ color:var(--green); border:1px solid var(--green); }
+  .tag-pendente{ color:var(--amber); border:1px solid var(--amber); }
+
+  .selo-admin{
+    font-family: var(--font-display);
+    font-size:0.68rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--bg);
+    background:var(--amber);
+    border-radius:3px;
+    padding:2px 8px;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+
+  #modal-confirmar{ background:var(--green); color:#fff; }
+  #modal-desconfirmar{ background:none; border:1px solid var(--amber); color:var(--amber); }
+
+  .grafico-inibidas-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .grafico-barras-inibidas{
+    display:flex;
+    align-items:flex-end;
+    gap:16px;
+    height:190px;
+    overflow-x:auto;
+    padding:4px 2px 4px;
+  }
+  .coluna-mes-inibida{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height:100%;
+    min-width:44px;
+    flex:0 0 auto;
+    background:none;
+    border:none;
+    padding:0;
+    cursor:default;
+    font-family: var(--font-body);
+  }
+  .coluna-mes-inibida .grafico-valor-mes{
+    font-family: var(--font-data);
+    font-size:0.78rem;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:4px;
+  }
+  .coluna-mes-inibida .barra-empilhada{
+    width:32px;
+    display:flex;
+    flex-direction:column-reverse;
+    border-radius:4px 4px 2px 2px;
+    overflow:hidden;
+    background:var(--line);
+  }
+  .coluna-mes-inibida .segmento-regional{
+    width:100%;
+    cursor:pointer;
+    transition:filter 0.12s ease;
+  }
+  .coluna-mes-inibida .segmento-regional:hover{ filter:brightness(1.25); }
+  .coluna-mes-inibida .barra-empilhada:hover{ overflow:visible; }
+  .coluna-mes-inibida.segmento-ativo .tooltip-mes{ display:none; }
+  .coluna-mes-inibida .grafico-rotulo-mes{
+    margin-top:6px;
+    font-size:0.72rem;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .coluna-mes-inibida:hover .grafico-rotulo-mes{ color:var(--text); }
+  .coluna-mes-inibida .grafico-recuperado-mes{
+    margin-top:2px;
+    font-size:0.66rem;
+    color:var(--green);
+    font-family: var(--font-data);
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .vazio-grafico{
+    text-align:center;
+    color:var(--muted);
+    padding:16px;
+    font-size:0.85rem;
+  }
+
+  .tooltip-mes{
+    display:none;
+    position:fixed;
+    z-index:60;
+    background:var(--panel-2);
+    border:1px solid var(--focus);
+    border-radius:6px;
+    padding:10px 12px;
+    min-width:190px;
+    max-width:min(220px, calc(100vw - 24px));
+    box-shadow:0 8px 20px rgba(0,0,0,0.45);
+  }
+  .coluna-mes-inibida:hover .tooltip-mes,
+  .coluna-mes-inibida:focus-visible .tooltip-mes,
+  .coluna-mes-inibida:focus-within .tooltip-mes{ display:block; }
+  .tooltip-mes .tooltip-linha{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:0.78rem;
+    padding:3px 0;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .tooltip-mes .tooltip-linha strong{ font-family: var(--font-data); color:var(--text); font-weight:600; }
+
+  .tooltip-segmento{
+    display:none;
+    position:fixed;
+    z-index:70;
+    background:var(--panel-2);
+    border:1px solid var(--focus);
+    border-radius:6px;
+    padding:8px 10px;
+    min-width:180px;
+    max-width:min(220px, calc(100vw - 24px));
+    box-shadow:0 8px 20px rgba(0,0,0,0.45);
+    pointer-events:none;
+  }
+  .tooltip-segmento .tooltip-linha{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:0.78rem;
+    padding:3px 0;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .tooltip-segmento .tooltip-linha strong{ font-family: var(--font-data); color:var(--text); font-weight:600; }
+
+  @media (max-width:560px){
+    form#form-ocorrencia{ grid-template-columns: 1fr; }
+    .resumo{ grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+
+  .credito-autor{
+    text-align:center;
+    color:var(--muted);
+    font-size:0.72rem;
+    letter-spacing:0.03em;
+    padding:14px 0 6px;
+  }
+</style>
+</head>
+<body>
+
+<div id="tela-login">
+  <div class="login-box">
+    <span class="eyebrow">Tenda Atacado</span>
+    <h2>Painel de Ocorrências</h2>
+    <label for="senha">Senha de acesso</label>
+    <input type="password" id="senha" autocomplete="current-password" />
+    <button id="btn-entrar">Entrar</button>
+    <div id="erro-login"></div>
+  </div>
+  <div class="credito-autor">made by C.H. Barbosa</div>
+</div>
+
+<div id="tela-painel" style="display:none;">
+  <div class="top">
+    <div>
+      <span class="eyebrow">Tenda Atacado</span>
+      <h1>Painel de Ocorrências de Roubo <span id="selo-admin" class="selo-admin" style="display:none;">Administrador</span><span id="selo-gerencia" class="selo-admin" style="display:none;">Gerência</span></h1>
+    </div>
+    <button id="sair">Sair</button>
+  </div>
+
+  <main>
+    <div id="pagina-dashboard">
+      <div class="resumo" id="secao-resumo">
+        <div class="cartao">
+          <div class="rotulo">Ocorrências registradas</div>
+          <div class="valor" id="total-ocorrencias">0</div>
+        </div>
+        <button id="btn-modo" class="modo-geral" type="button">
+          <div class="rotulo">Valor recuperado (total)</div>
+          <div class="valor" id="valor-modo">R$ 0,00</div>
+          <div class="dica">Clique para ver só valor recuperado de quadrilha</div>
+        </button>
+        <div class="cartao">
+          <div class="rotulo" id="rotulo-valor-mes">Valor recuperado no mês</div>
+          <div class="valor" id="valor-recuperado-mes">R$ 0,00</div>
+        </div>
+      </div>
+
+      <div class="painel-secundario" id="secao-painel-secundario">
+        <div class="coluna-nav">
+          <button id="btn-abrir-regionais" class="cartao-nav" type="button">
+            <div>
+              <div class="rotulo">Painel de regionais</div>
+              <div class="valor">4 regionais</div>
+            </div>
+            <span class="seta">→</span>
+          </button>
+
+          <button id="btn-abrir-ocorrencias" class="cartao-nav" type="button">
+            <div>
+              <div class="rotulo">Ocorrências recentes</div>
+              <div class="valor" id="contador-ocorrencias">0 registradas</div>
+            </div>
+            <span class="seta">→</span>
+          </button>
+
+          <button id="btn-abrir-ranking" class="cartao-nav" type="button">
+            <div>
+              <div class="rotulo">Ranking</div>
+              <div class="valor">Com e sem FaceID</div>
+            </div>
+            <span class="seta">→</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="cartao-grafico-regionais" id="secao-grafico-regionais">
+        <div class="rotulo">Ocorrências por regional</div>
+        <div class="grafico-regionais-linha">
+          <div class="grafico-pizza-wrap">
+            <svg class="grafico-pizza" id="pizza-regionais" viewBox="0 0 120 120" role="img" aria-label="Distribuição de ocorrências por regional"></svg>
+            <div class="grafico-legenda" id="legenda-regionais"></div>
+          </div>
+          <div class="grafico-barras-regionais" id="colunas-regionais"></div>
+        </div>
+      </div>
+
+      <div class="cartao-grafico-regionais" id="secao-inibidas-mensal">
+        <div class="rotulo">Ocorrências inibidas por mês e regional</div>
+        <div class="grafico-inibidas-wrap">
+          <div class="grafico-barras-inibidas" id="barras-inibidas-mensal"></div>
+          <div class="grafico-legenda" id="legenda-inibidas-mensal"></div>
+        </div>
+      </div>
+
+      <!-- Visível para todo mundo (comum e admin) — sem toggle em aplicarVisibilidadePorPerfil -->
+      <div class="cartao-grafico-regionais" id="secao-indicadores-geral">
+        <div class="rotulo">Apoio de cópia, quadrilha e monitoramento</div>
+        <div class="grafico-pizza-wrap">
+          <svg class="grafico-pizza" id="pizza-indicadores" viewBox="0 0 120 120" role="img" aria-label="Apoio de cópia, quadrilha e monitoramento"></svg>
+          <div class="grafico-legenda" id="legenda-indicadores"></div>
+        </div>
+      </div>
+
+      <form id="form-ocorrencia">
+        <div>
+          <label for="nome">Seu nome</label>
+          <input type="text" id="nome" placeholder="Quem está registrando" required />
+        </div>
+        <div>
+          <label for="data">Data</label>
+          <input type="date" id="data" required />
+        </div>
+        <div>
+          <label for="loja">Loja</label>
+          <input type="text" id="loja" list="lista-lojas" placeholder="Digite o código (ex: CT06)" autocomplete="off" required />
+          <datalist id="lista-lojas"></datalist>
+        </div>
+        <div>
+          <label for="regional">Regional</label>
+          <input type="text" id="regional" placeholder="Preenchido automaticamente" readonly />
+        </div>
+        <div class="full campo-faceid">
+          <label>Identificação</label>
+          <div class="abas-faceid" role="radiogroup" aria-label="FaceID">
+            <div class="wrap-aba">
+              <input type="radio" name="faceId" id="faceid-sim" value="sim" required />
+              <label for="faceid-sim">Com FaceID</label>
+            </div>
+            <div class="wrap-aba">
+              <input type="radio" name="faceId" id="faceid-nao" value="nao" />
+              <label for="faceid-nao">Sem FaceID</label>
+            </div>
+          </div>
+        </div>
+        <div class="full">
+          <label for="descricao">Descrição da ocorrência</label>
+          <textarea id="descricao" placeholder="O que aconteceu..." required></textarea>
+        </div>
+        <div>
+          <label for="valorRecuperado">Valor recuperado (R$)</label>
+          <input type="text" inputmode="numeric" id="valorRecuperado" placeholder="R$ 0,00" />
+        </div>
+        <div class="full">
+          <label for="foto">Foto (print, câmera, etc.)</label>
+          <input type="file" id="foto" accept="image/*" />
+          <img id="foto-preview" style="display:none; max-width:160px; border-radius:8px; margin-top:8px;" />
+        </div>
+        <div class="campo-toggle">
+          <input type="checkbox" id="quadrilha" class="toggle-check" />
+          <label for="quadrilha" class="toggle-botao toggle-quadrilha">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Envolveu quadrilha
+          </label>
+        </div>
+        <div class="campo-toggle">
+          <input type="checkbox" id="inibido" class="toggle-check" />
+          <label for="inibido" class="toggle-botao toggle-inibido">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Ocorrência foi inibida
+          </label>
+        </div>
+        <div class="campo-toggle">
+          <input type="checkbox" id="apoioCopia" class="toggle-check" />
+          <label for="apoioCopia" class="toggle-botao toggle-apoio">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Teve apoio de cópia
+          </label>
+        </div>
+        <div class="campo-toggle">
+          <input type="checkbox" id="monitoramento" class="toggle-check" />
+          <label for="monitoramento" class="toggle-botao toggle-monitoramento">
+            <span class="toggle-marca" aria-hidden="true"></span>
+            Teve monitoramento
+          </label>
+        </div>
+        <div class="full">
+          <button type="submit">Registrar ocorrência</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="pagina-regionais" style="display:none;">
+      <div class="pagina-header">
+        <button id="btn-voltar-regionais" type="button">← Voltar</button>
+        <p class="lista-titulo" id="titulo-pagina-regionais">Painel de regionais</p>
+      </div>
+
+      <div id="vista-regionais">
+        <div id="lista-regionais"></div>
+      </div>
+
+      <div id="vista-lojas" style="display:none;">
+        <div id="lista-lojas-regional"></div>
+      </div>
+
+      <div id="vista-ocorrencias-loja" style="display:none;">
+        <div id="lista-ocorrencias-loja"></div>
+      </div>
+    </div>
+
+    <div id="pagina-ranking" style="display:none;">
+      <div class="pagina-header">
+        <button id="btn-voltar-ranking" type="button">← Voltar</button>
+        <p class="lista-titulo">Ranking de recuperação</p>
+        <button id="btn-tela-cheia" type="button" title="Tela cheia (F11)">⛶ Tela cheia</button>
+      </div>
+      <div class="ranking-topo">
+        <div class="col-abas">
+          <div class="abas-ranking" id="abas-turno">
+            <button type="button" data-turno="manha" class="ativa">☀️ Manhã<span class="qtd" id="tm-manha">0</span></button>
+            <button type="button" data-turno="tarde">🌇 Tarde<span class="qtd" id="tm-tarde">0</span></button>
+          </div>
+          <div class="abas-ranking abas-sec" id="abas-ranking">
+            <button type="button" data-aba="sim" class="ativa">Com FaceID<span class="qtd" id="rk-qtd-sim">0</span></button>
+            <button type="button" data-aba="nao">Sem FaceID<span class="qtd" id="rk-qtd-nao">0</span></button>
+          </div>
+        </div>
+        <div class="lider-mes" id="lider-mes" style="display:none;"></div>
+      </div>
+      <div id="podio-ranking"></div>
+      <div id="lista-ranking"></div>
+    </div>
+
+    <div id="pagina-ocorrencias" style="display:none;">
+      <div class="pagina-header">
+        <button id="btn-voltar" type="button">← Voltar</button>
+        <p class="lista-titulo">Ocorrências recentes</p>
+      </div>
+
+      <div class="verificar">
+        <p class="lista-titulo">Verificar registros</p>
+        <div class="linha-filtros">
+          <div class="campo">
+            <label for="f-loja">Loja</label>
+            <input type="text" id="f-loja" placeholder="Buscar por loja..." />
+          </div>
+          <div class="campo">
+            <label for="f-regional">Regional</label>
+            <input type="text" id="f-regional" placeholder="Buscar por regional..." />
+          </div>
+          <div class="campo">
+            <label for="f-data-ini">De</label>
+            <input type="date" id="f-data-ini" />
+          </div>
+          <div class="campo">
+            <label for="f-data-fim">Até</label>
+            <input type="date" id="f-data-fim" />
+          </div>
+          <div class="campo-check">
+            <input type="checkbox" id="f-quadrilha" />
+            <label for="f-quadrilha">Só quadrilha</label>
+          </div>
+          <div class="campo-check" id="campo-f-pendente" style="display:none;">
+            <input type="checkbox" id="f-pendente" />
+            <label for="f-pendente">Só pendentes de confirmação</label>
+          </div>
+          <div class="campo-check" id="campo-f-confirmada" style="display:none;">
+            <input type="checkbox" id="f-confirmada" />
+            <label for="f-confirmada">Só confirmadas</label>
+          </div>
+          <button id="btn-limpar-filtro" type="button">Limpar</button>
+        </div>
+        <div id="resultado-filtro"></div>
+      </div>
+
+      <div id="lista"></div>
+    </div>
+  </main>
+  <div class="credito-autor">made by C.H. Barbosa</div>
+</div>
+
+<div id="modal-evolucao"><div class="evo-caixa" id="evo-conteudo"></div></div>
+
+<div id="modal-overlay" class="modal-overlay" style="display:none;">
+  <div class="modal-caixa" id="modal-conteudo"></div>
+</div>
+
+<script>
+  const $ = (sel) => document.querySelector(sel);
+  let senhaAtual = localStorage.getItem("senha_painel") || "";
+  let isAdmin = localStorage.getItem("painel_admin") === "1";
+  let isGerencia = localStorage.getItem("painel_gerencia") === "1";
+  let modoQuadrilha = false;
+  // ---------- Zerar ranking e valores ----------
+  // Ranking e valores recuperados só contam ocorrências registradas a partir deste momento.
+  // As ocorrências antigas continuam salvas e visíveis nas demais telas (contagens, listas, gráficos de quantidade).
+  // Para zerar de novo, troque a data/hora abaixo. Para voltar ao histórico completo, use null.
+  const ZERAR_RANKING_E_VALORES_DESDE = "2026-10-27T02:09:13Z";
+  const aposZerar = (o) => !ZERAR_RANKING_E_VALORES_DESDE || new Date(o.criadoEm || 0) >= new Date(ZERAR_RANKING_E_VALORES_DESDE);
+  const valorContado = (o) => aposZerar(o) ? (Number(o.valorRecuperado) || 0) : 0;
+
+  let ocorrencias = [];
+
+  // ---------- Mapeamento fixo: Regional / Responsável / Lojas ----------
+  const REGIONAIS = [
+    {
+      nome: "Vale e Litoral Norte",
+      responsavel: "João Nunes",
+      lojas: ["CT06","CT08","CT09","CT13","CT14","CT15","CT18","CT34","CT47","CT48","CT57","CT67"],
+    },
+    {
+      nome: "Interior Noroeste",
+      responsavel: "Márcio Lúcio",
+      lojas: ["CT25","CT27","CT28","CT32","CT35","CT37","CT39","CT59","CT60","CT63","CT64"],
+    },
+    {
+      nome: "Interior Grande SP e Litoral Sul",
+      responsavel: "Mauro Antonio",
+      lojas: ["CT17","CT20","CT33","CT36","CT41","CT43","CT44","CT49","CT51","CT53","CT58"],
+    },
+    {
+      nome: "Interior e Campinas",
+      responsavel: "Marcos Paulo",
+      lojas: ["CAMP-CEASA","CT03","CT16","CT30","CT31","CT38","CT50","CT54","CT62","CT65","CT66"],
+    },
+  ];
+
+  // Mapa: código da loja -> nome da cidade/loja
+  const NOME_LOJA = {
+    CT06: "Kennedy", CT08: "São José", CT09: "Guarapiranga", CT13: "Guaratinguetá",
+    CT14: "Bonsucesso", CT15: "Taubaté", CT18: "Jacareí", CT34: "Pinda",
+    CT47: "Presidente Dutra", CT48: "Vila Galvão", CT57: "Ubatuba", CT67: "Bertioga",
+    CT25: "Bauru", CT27: "Santa Bárbara", CT28: "Indaiatuba", CT32: "Sumaré",
+    CT35: "Botucatu", CT37: "Piracicaba", CT39: "Hortolândia", CT59: "Matão",
+    CT60: "Jaú", CT63: "Itapetininga", CT64: "Avaré",
+    CT17: "Diadema", CT20: "Itu", CT33: "Itanhaém", CT36: "Salto",
+    CT41: "Ferraz", CT43: "Itaquá", CT44: "Suzano", CT49: "São Mateus",
+    CT51: "Praia Grande", CT53: "Sorocaba", CT58: "Praia Grande 2",
+    "CAMP-CEASA": "Ceasa", CT03: "Amoreiras", CT16: "Carapicuíba", CT30: "Mogi Guaçu",
+    CT31: "São Carlos", CT38: "Ribeirão Preto", CT50: "Jundiaí", CT54: "Itatiba",
+    CT62: "Leme", CT65: "Vinhedo", CT66: "Amparo",
+  };
+  function nomeCompletoLoja(codigo){
+    return NOME_LOJA[codigo] ? `${codigo}-${NOME_LOJA[codigo]}` : codigo;
+  }
+
+  // Mapa reverso: código da loja -> { regional, responsavel }
+  const MAPA_LOJAS = {};
+  REGIONAIS.forEach((r) => {
+    r.lojas.forEach((codigo) => {
+      MAPA_LOJAS[codigo] = { regional: r.nome, responsavel: r.responsavel };
+    });
+  });
+
+  function popularListaLojas(){
+    const datalist = $("#lista-lojas");
+    REGIONAIS.forEach((r) => {
+      r.lojas.forEach((codigo) => {
+        const opt = document.createElement("option");
+        opt.value = codigo;
+        opt.label = r.nome;
+        datalist.appendChild(opt);
+      });
+    });
+  }
+  popularListaLojas();
+
+  $("#loja").addEventListener("input", (e) => {
+    const posicaoCursor = e.target.selectionStart;
+    e.target.value = e.target.value.toUpperCase();
+    e.target.setSelectionRange(posicaoCursor, posicaoCursor);
+    const info = MAPA_LOJAS[e.target.value.trim()];
+    $("#regional").value = info ? info.regional : "";
+  });
+
+  function formatarMoeda(v){
+    const numero = Number(v) || 0;
+    return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+  function formatarData(iso){
+    if(!iso) return "";
+    // Aceita tanto "AAAA-MM-DD" quanto um timestamp ISO completo
+    // ("AAAA-MM-DDTHH:mm:ss.sssZ"), usando só a parte da data.
+    const soData = String(iso).split("T")[0];
+    const [ano, mes, dia] = soData.split("-");
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  // ---------- Mascara de moeda para o campo "Valor recuperado" ----------
+  function centavosParaTexto(centavos){
+    const valor = centavos / 100;
+    return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+  function textoParaValor(texto){
+    const digitos = (texto || "").replace(/\D/g, "");
+    return digitos ? parseInt(digitos, 10) / 100 : 0;
+  }
+  function aplicarMascaraMoeda(e){
+    const digitos = e.target.value.replace(/\D/g, "");
+    e.target.value = digitos ? centavosParaTexto(parseInt(digitos, 10)) : "";
+  }
+  $("#valorRecuperado").addEventListener("input", aplicarMascaraMoeda);
+
+  // ---------- Foto anexada à ocorrência ----------
+  let fotoBase64Atual = null;
+
+  function redimensionarImagem(arquivo, larguraMax = 1280, qualidade = 0.75){
+    return new Promise((resolve, reject) => {
+      const leitor = new FileReader();
+      leitor.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const escala = Math.min(1, larguraMax / img.width);
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width * escala;
+          canvas.height = img.height * escala;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", qualidade));
+        };
+        img.onerror = reject;
+        img.src = leitor.result;
+      };
+      leitor.onerror = reject;
+      leitor.readAsDataURL(arquivo);
+    });
+  }
+
+  $("#foto").addEventListener("change", async (e) => {
+    const arquivo = e.target.files[0];
+    const preview = $("#foto-preview");
+    if(!arquivo){
+      fotoBase64Atual = null;
+      preview.style.display = "none";
+      return;
+    }
+    try {
+      fotoBase64Atual = await redimensionarImagem(arquivo);
+      preview.src = fotoBase64Atual;
+      preview.style.display = "block";
+    } catch (err) {
+      console.error("Erro ao processar foto:", err);
+      fotoBase64Atual = null;
+    }
+  });
+
+  async function api(caminho, opcoes = {}){
+    const resp = await fetch(caminho, {
+      ...opcoes,
+      headers: {
+        "Content-Type": "application/json",
+        "x-senha": senhaAtual,
+        ...(opcoes.headers || {}),
+      },
+    });
+    if(resp.status === 401){
+      mostrarLogin("Sessão expirada. Entre novamente.");
+      throw new Error("nao autorizado");
+    }
+    return resp;
+  }
+
+  function aplicarVisibilidadePorPerfil(){
+    $("#selo-admin").style.display = isAdmin ? "inline-block" : "none";
+    $("#selo-gerencia").style.display = isGerencia ? "inline-block" : "none";
+    $("#campo-f-pendente").style.display = isAdmin ? "flex" : "none";
+    $("#campo-f-confirmada").style.display = isAdmin ? "flex" : "none";
+    // Usuários comuns só registram ocorrências. Os painéis (resumo, regionais,
+    // ocorrências recentes, gráficos) ficam para o administrador e a gerência;
+    // confirmar registros continua restrito ao administrador.
+    const vePaineis = isAdmin || isGerencia;
+    $("#secao-resumo").style.display = vePaineis ? "" : "none";
+    $("#secao-painel-secundario").style.display = vePaineis ? "" : "none";
+    $("#secao-grafico-regionais").style.display = vePaineis ? "" : "none";
+    $("#secao-inibidas-mensal").style.display = vePaineis ? "" : "none";
+    // A gerência só consulta os painéis: sem formulário de registro.
+    $("#form-ocorrencia").style.display = isGerencia ? "none" : "";
+  }
+
+  function mostrarLogin(erro){
+    $("#tela-painel").style.display = "none";
+    $("#tela-login").style.display = "flex";
+    $("#erro-login").textContent = erro || "";
+    localStorage.removeItem("senha_painel");
+    localStorage.removeItem("painel_admin");
+    localStorage.removeItem("painel_gerencia");
+    isAdmin = false;
+    isGerencia = false;
+    pararAtualizacaoAutomatica();
+  }
+
+  function mostrarPainel(){
+    $("#tela-login").style.display = "none";
+    $("#tela-painel").style.display = "block";
+    aplicarVisibilidadePorPerfil();
+    carregarOcorrencias();
+    iniciarAtualizacaoAutomatica();
+  }
+
+  // ---------- Atualização automática (mantém o gráfico de inibidas por mês
+  // e regional, e o restante do painel, em dia mesmo com lançamentos feitos
+  // por outras pessoas em outros dispositivos) ----------
+  const INTERVALO_ATUALIZACAO_MS = 60000; // 1 minuto
+  let intervaloAtualizacaoAuto = null;
+
+  function iniciarAtualizacaoAutomatica(){
+    pararAtualizacaoAutomatica();
+    intervaloAtualizacaoAuto = setInterval(() => {
+      if(!document.hidden && senhaAtual) carregarOcorrencias();
+    }, INTERVALO_ATUALIZACAO_MS);
+  }
+
+  function pararAtualizacaoAutomatica(){
+    if(intervaloAtualizacaoAuto){
+      clearInterval(intervaloAtualizacaoAuto);
+      intervaloAtualizacaoAuto = null;
+    }
+  }
+
+  // Se a aba ficava em segundo plano, o painel podia ficar desatualizado ao
+  // voltar; ao reaparecer, atualiza na hora em vez de esperar o próximo ciclo.
+  document.addEventListener("visibilitychange", () => {
+    if(!document.hidden && senhaAtual) carregarOcorrencias();
+  });
+
+  $("#btn-entrar").addEventListener("click", async () => {
+    const senha = $("#senha").value;
+    const resp = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ senha }),
+    });
+    if(resp.ok){
+      const dados = await resp.json().catch(() => ({}));
+      senhaAtual = senha;
+      isAdmin = !!dados.admin;
+      isGerencia = !!dados.gerencia;
+      localStorage.setItem("senha_painel", senha);
+      localStorage.setItem("painel_admin", isAdmin ? "1" : "0");
+      localStorage.setItem("painel_gerencia", isGerencia ? "1" : "0");
+      $("#erro-login").textContent = "";
+      mostrarPainel();
+    } else {
+      $("#erro-login").textContent = "Senha incorreta.";
+    }
+  });
+
+  $("#senha").addEventListener("keydown", (e) => {
+    if(e.key === "Enter") $("#btn-entrar").click();
+  });
+
+  $("#sair").addEventListener("click", () => mostrarLogin());
+
+  $("#btn-abrir-ocorrencias").addEventListener("click", () => {
+    $("#pagina-dashboard").style.display = "none";
+    $("#pagina-ocorrencias").style.display = "block";
+  });
+  $("#btn-voltar").addEventListener("click", () => {
+    $("#pagina-ocorrencias").style.display = "none";
+    $("#pagina-dashboard").style.display = "block";
+  });
+
+  // ---------- Ranking (com / sem FaceID) ----------
+  let abaRanking = "sim";
+  let turnoRanking = "manha";
+
+  // Turno pelo nome (maiúsculas, acentos e pontos não importam).
+  // Quem não estiver em nenhuma das duas listas é tratado como tarde.
+  const PESSOAL_MANHA = ["Steffane", "Iza", "Guimaraes E Steffane", "Arthur", "Alice", "Cleide", "Iraki", "Steffane C.", "Wesley", "Gabriel"];
+  const PESSOAL_TARDE = ["Jessica da Silva", "Vanessa Jesus", "Renan", "Tymberlli", "José Keylo", "Shirley Santos", "Deivys", "Alencar"];
+  const chaveTurno = (n) => String(n || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+  const SET_MANHA = new Set(PESSOAL_MANHA.map(chaveTurno));
+  const SET_TARDE = new Set(PESSOAL_TARDE.map(chaveTurno));
+  function turnoDe(o){
+    const k = chaveTurno(o.nome);
+    if(SET_TARDE.has(k)) return "tarde";
+    return SET_MANHA.has(k) ? "manha" : "tarde";
+  }
+
+  function normalizarNome(n){
+    return String(n || "").trim().replace(/\s+/g, " ").toLowerCase();
+  }
+
+  // Chave usada no ranking: quem está nas listas de manhã/tarde usa sempre a chave do nome da lista
+  // (assim "Jose Keylo" e "José Keylo" caem na mesma pessoa).
+  const ALIAS_PESSOAL = new Map();
+  PESSOAL_MANHA.concat(PESSOAL_TARDE).forEach((n) => ALIAS_PESSOAL.set(chaveTurno(n), normalizarNome(n)));
+  const chaveRanking = (nome) => ALIAS_PESSOAL.get(chaveTurno(nome)) || normalizarNome(nome) || "—";
+
+  // ---------- Meta de inibição (valor inibido) + comemoração ----------
+  // A barra de cada pessoa sobe conforme o valor das ocorrências inibidas. Ao chegar na meta: fogos e som de vitória.
+  const META_RECUPERADO_VALOR = 3500; // R$ recuperados necessários para completar a barra (altere aqui)
+  const CHAVE_CELEBRADOS = "rk_celebrados_v2";
+  function lerCelebrados(){
+    try{ return new Set(JSON.parse(localStorage.getItem(CHAVE_CELEBRADOS) || "[]")); }catch(e){ return new Set(); }
+  }
+  function salvarCelebrados(set){
+    try{ localStorage.setItem(CHAVE_CELEBRADOS, JSON.stringify([...set])); }catch(e){}
+  }
+  let audioCtx = null;
+  function obterAudio(){
+    try{
+      if(!audioCtx){
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if(!AC) return null;
+        audioCtx = new AC();
+      }
+      if(audioCtx.state === "suspended") audioCtx.resume();
+      return audioCtx;
+    }catch(e){ return null; }
+  }
+  function somTom(ctx, freq, ini, dur, tipo, vol){
+    const t = ctx.currentTime + ini;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = tipo; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  function somRuido(ctx, ini, dur, vol, freq, tipoFiltro){
+    const n = Math.max(1, Math.floor(ctx.sampleRate * dur));
+    const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const f = ctx.createBiquadFilter(); f.type = tipoFiltro; f.frequency.value = freq;
+    const g = ctx.createGain(); g.gain.value = vol;
+    src.connect(f); f.connect(g); g.connect(ctx.destination);
+    src.start(ctx.currentTime + ini);
+  }
+  function somVitoria(ctx){
+    // fanfarra
+    [[523, 0], [659, 0.18], [784, 0.36], [1047, 0.54]].forEach(([f, t]) => { somTom(ctx, f, t, 0.35, "triangle", 0.25); somTom(ctx, f / 2, t, 0.35, "square", 0.06); });
+    [[784, 1.0], [1047, 1.0], [1319, 1.0]].forEach(([f, t]) => { somTom(ctx, f, t, 1.3, "triangle", 0.22); });
+    // aplausos / torcida
+    for(let i = 0; i < 90; i++) somRuido(ctx, 1.0 + Math.random() * 5, 0.05 + Math.random() * 0.05, 0.12 + Math.random() * 0.1, 1800 + Math.random() * 2500, "highpass");
+    somRuido(ctx, 0.9, 3.5, 0.06, 900, "bandpass");
+  }
+  function somEstouro(ctx){
+    somRuido(ctx, 0, 0.3, 0.5, 500, "lowpass");
+    somRuido(ctx, 0.02, 0.15, 0.18, 3000, "highpass");
+  }
+  function comemorar(nome, valor){
+    return new Promise((resolve) => {
+      const ctx = obterAudio();
+      if(ctx) somVitoria(ctx);
+      const cv = document.createElement("canvas");
+      cv.id = "fogos-canvas";
+      cv.width = window.innerWidth; cv.height = window.innerHeight;
+      const banner = document.createElement("div");
+      banner.className = "banner-vitoria";
+      banner.innerHTML = `<div class="bv-trofeu">🏆</div><div class="bv-titulo">META BATIDA!</div><div class="bv-nome">${escapeHtml(nome)}</div><div class="bv-valor">${formatarMoeda(valor)} recuperados</div>`;
+      document.body.appendChild(cv); document.body.appendChild(banner);
+      const c = cv.getContext("2d");
+      const cores = ["#f5c542", "#4ade80", "#60a5fa", "#f472b6", "#fb923c", "#ffffff", "#a78bfa"];
+      let particulas = [];
+      function estourar(){
+        const x = cv.width * (0.12 + Math.random() * 0.76), y = cv.height * (0.12 + Math.random() * 0.45);
+        const cor = cores[Math.floor(Math.random() * cores.length)];
+        for(let i = 0; i < 70; i++){
+          const a = Math.random() * Math.PI * 2, v = 1.5 + Math.random() * 5.5;
+          particulas.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, vida: 1, cor: Math.random() < 0.25 ? "#ffffff" : cor });
+        }
+        if(ctx) somEstouro(ctx);
+      }
+      const DURACAO = 7000;
+      const ini = performance.now();
+      let ultimo = 0;
+      function quadro(t){
+        const dec = t - ini;
+        if(dec - ultimo > 380 && dec < DURACAO - 1200){ ultimo = dec; estourar(); if(Math.random() < 0.5) estourar(); }
+        c.globalCompositeOperation = "destination-out";
+        c.fillStyle = "rgba(0,0,0,0.22)";
+        c.fillRect(0, 0, cv.width, cv.height);
+        c.globalCompositeOperation = "lighter";
+        particulas.forEach((p) => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.07; p.vx *= 0.985; p.vy *= 0.985; p.vida -= 0.011;
+          if(p.vida > 0){
+            c.globalAlpha = Math.max(0, p.vida);
+            c.fillStyle = p.cor;
+            c.beginPath(); c.arc(p.x, p.y, 2.2, 0, Math.PI * 2); c.fill();
+          }
+        });
+        c.globalAlpha = 1;
+        particulas = particulas.filter((p) => p.vida > 0);
+        if(dec < DURACAO) requestAnimationFrame(quadro);
+        else { cv.remove(); banner.remove(); resolve(); }
+      }
+      requestAnimationFrame(quadro);
+    });
+  }
+  const filaComemoracao = [];
+  let comemorando = false;
+  async function processarFilaComemoracao(){
+    if(comemorando) return;
+    comemorando = true;
+    while(filaComemoracao.length){
+      const it = filaComemoracao.shift();
+      await comemorar(it.nome, it.valor);
+    }
+    comemorando = false;
+  }
+  function verificarMetas(lista){
+    const tot = new Map();
+    lista.forEach((o) => {
+      const k = chaveRanking(o.nome);
+      if(!tot.has(k)) tot.set(k, { nome: (o.nome || "").trim() || "Sem nome", valor: 0 });
+      tot.get(k).valor += valorContado(o);
+    });
+    const feitos = lerCelebrados();
+    let mudou = false;
+    tot.forEach((g, k) => {
+      if(g.valor >= META_RECUPERADO_VALOR && !feitos.has(k)){
+        feitos.add(k); mudou = true;
+        filaComemoracao.push({ nome: g.nome, valor: g.valor });
+      }
+    });
+    if(mudou){ salvarCelebrados(feitos); processarFilaComemoracao(); }
+  }
+  // ---------- Evolução de cada pessoa (clique no ranking) ----------
+  function evolucaoDe(chave){
+    const dias = new Map();
+    ocorrencias.filter((o) => aposZerar(o) && chaveRanking(o.nome) === chave).forEach((o) => {
+      const d = String(o.data || o.criadoEm || "").slice(0, 10);
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+      if(!dias.has(d)) dias.set(d, { rec: 0, inib: 0, qtd: 0, qtdInib: 0 });
+      const x = dias.get(d), v = valorContado(o);
+      x.rec += v; x.qtd += 1;
+      if(o.inibido){ x.inib += v; x.qtdInib += 1; }
+    });
+    if(!dias.size) return [];
+    const ord = [...dias.keys()].sort();
+    const hojeD = new Date();
+    const hoje = hojeD.getFullYear() + "-" + String(hojeD.getMonth() + 1).padStart(2, "0") + "-" + String(hojeD.getDate()).padStart(2, "0");
+    const fim = ord[ord.length - 1] > hoje ? ord[ord.length - 1] : hoje;
+    const serie = [];
+    let rec = 0, inib = 0, qtd = 0;
+    const cur = new Date(ord[0] + "T00:00:00Z"), ultimo = new Date(fim + "T00:00:00Z");
+    while(cur <= ultimo && serie.length < 800){
+      const k = cur.toISOString().slice(0, 10);
+      const x = dias.get(k) || { rec: 0, inib: 0, qtd: 0, qtdInib: 0 };
+      rec += x.rec; inib += x.inib; qtd += x.qtd;
+      serie.push({ dia: k, rec, inib, qtd, diaRec: x.rec, diaInib: x.inib, diaQtd: x.qtd });
+      cur.setUTCDate(cur.getUTCDate() + 1);
+    }
+    return serie;
+  }
+  const dataCurta = (d) => d.slice(8, 10) + "/" + d.slice(5, 7);
+  const dataLonga = (d) => d.slice(8, 10) + "/" + d.slice(5, 7) + "/" + d.slice(0, 4);
+
+  function abrirEvolucao(chave, nome, valorInib){
+    const serie = evolucaoDe(chave);
+    const box = $("#evo-conteudo");
+    const turnoTxt = turnoRanking === "manha" ? "☀️ Manhã" : "🌇 Tarde";
+    const ult = serie[serie.length - 1] || { rec: 0, inib: 0, qtd: 0 };
+    const bateu = ult.rec >= META_RECUPERADO_VALOR;
+    const W = 760, H = 300, ML = 64, MR = 16, MT = 14, MB = 30;
+    const maxDados = Math.max(1, ...serie.map((p) => Math.max(p.rec, p.inib)));
+    const ymax = Math.max(maxDados, maxDados * 1.15 >= META_RECUPERADO_VALOR * 0.6 ? META_RECUPERADO_VALOR : 0) * 1.06;
+    const n = serie.length;
+    const X = (i) => ML + (n === 1 ? (W - ML - MR) / 2 : (i / (n - 1)) * (W - ML - MR));
+    const Y = (v) => MT + (1 - v / ymax) * (H - MT - MB);
+    const caminho = (campo) => serie.map((p, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(p[campo]).toFixed(1)).join(" ");
+    const eixoY = [0, 1, 2, 3, 4].map((k) => {
+      const v = (ymax / 4) * k;
+      return `<line x1="${ML}" x2="${W - MR}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1" opacity="0.6"/><text x="${ML - 8}" y="${Y(v) + 4}" text-anchor="end" fill="var(--muted)" font-size="11">${v >= 1000 ? "R$ " + (v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "k" : "R$ " + Math.round(v)}</text>`;
+    }).join("");
+    const passo = Math.max(1, Math.ceil(n / 7));
+    const eixoX = serie.map((p, i) => (i % passo === 0 || i === n - 1) ? `<text x="${X(i)}" y="${H - 8}" text-anchor="middle" fill="var(--muted)" font-size="11">${dataCurta(p.dia)}</text>` : "").join("");
+    const linhaMeta = ymax >= META_RECUPERADO_VALOR
+      ? `<line x1="${ML}" x2="${W - MR}" y1="${Y(META_RECUPERADO_VALOR)}" y2="${Y(META_RECUPERADO_VALOR)}" stroke="#f5c542" stroke-width="1.5" stroke-dasharray="6 5"/><text x="${W - MR}" y="${Y(META_RECUPERADO_VALOR) - 5}" text-anchor="end" fill="#f5c542" font-size="11">Meta ${formatarMoeda(META_RECUPERADO_VALOR)}</text>`
+      : "";
+    const area = n > 1 ? `<path d="${caminho("inib")} L${X(n - 1)} ${Y(0)} L${X(0)} ${Y(0)} Z" fill="var(--green)" opacity="0.12"/>` : "";
+    const pontos = n <= 40 ? serie.map((p, i) => `<circle cx="${X(i)}" cy="${Y(p.rec)}" r="3" fill="var(--focus)"/><circle cx="${X(i)}" cy="${Y(p.inib)}" r="3" fill="var(--green)"/>`).join("") : "";
+    box.innerHTML = `
+      <div class="evo-topo">
+        <div><div class="evo-eyebrow">Evolução · ${turnoTxt}</div><div class="evo-nome">${escapeHtml(nome)}</div></div>
+        <button class="evo-x" type="button" id="evo-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <div class="evo-stats">
+        <div class="evo-stat"><div class="r">Recuperado</div><div class="v azul">${formatarMoeda(ult.rec)}</div></div>
+        <div class="evo-stat"><div class="r">Inibido</div><div class="v verde">${formatarMoeda(ult.inib)}</div></div>
+        <div class="evo-stat"><div class="r">Ocorrências</div><div class="v">${ult.qtd}</div></div>
+        <div class="evo-stat"><div class="r">Meta</div><div class="v">${Math.min(100, (ult.rec / META_RECUPERADO_VALOR) * 100).toFixed(0)}%</div></div>
+      </div>
+      <div class="evo-grafico" id="evo-grafico">
+        ${n ? `<svg viewBox="0 0 ${W} ${H}" id="evo-svg" role="img" aria-label="Gráfico de evolução de ${escapeHtml(nome)}">
+          ${eixoY}${eixoX}${linhaMeta}${area}
+          <path d="${caminho("rec")}" fill="none" stroke="var(--focus)" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="${caminho("inib")}" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linejoin="round"/>
+          ${pontos}
+          <line id="evo-guia" y1="${MT}" y2="${H - MB}" x1="0" x2="0" stroke="var(--muted)" stroke-dasharray="3 3" style="display:none"/>
+        </svg><div class="evo-tip" id="evo-tip"></div>` : '<div class="vazio">Sem ocorrências para montar o gráfico.</div>'}
+      </div>
+      <div class="evo-legenda"><span><i style="background:var(--focus)"></i>Valor recuperado (acumulado)</span><span><i style="background:var(--green)"></i>Valor inibido (acumulado)</span><span><i style="background:#f5c542"></i>Meta de recuperação</span></div>
+      <div class="evo-acoes">
+        ${bateu ? '<button type="button" id="evo-comemorar">🎆 Repetir comemoração</button>' : ""}
+        <button type="button" id="evo-fechar2">Fechar</button>
+      </div>`;
+    $("#modal-evolucao").style.display = "flex";
+    $("#evo-fechar").addEventListener("click", fecharEvolucao);
+    $("#evo-fechar2").addEventListener("click", fecharEvolucao);
+    const bc = $("#evo-comemorar");
+    if(bc) bc.addEventListener("click", () => {
+      fecharEvolucao();
+      filaComemoracao.push({ nome, valor: ult.rec });
+      processarFilaComemoracao();
+    });
+    const svg = $("#evo-svg");
+    if(!svg) return;
+    const tip = $("#evo-tip"), guia = $("#evo-guia"), cx = $("#evo-grafico");
+    svg.addEventListener("pointermove", (e) => {
+      const r = svg.getBoundingClientRect();
+      const vx = ((e.clientX - r.left) / r.width) * W;
+      let i = n === 1 ? 0 : Math.round(((vx - ML) / (W - ML - MR)) * (n - 1));
+      i = Math.max(0, Math.min(n - 1, i));
+      const p = serie[i];
+      guia.setAttribute("x1", X(i)); guia.setAttribute("x2", X(i)); guia.style.display = "";
+      tip.innerHTML = `<b>${dataLonga(p.dia)}</b><br>Recuperado: <b style="color:var(--focus)">${formatarMoeda(p.rec)}</b><br>Inibido: <b style="color:var(--green)">${formatarMoeda(p.inib)}</b><br>No dia: ${p.diaQtd} ocorr. · ${formatarMoeda(p.diaRec)}`;
+      tip.style.display = "block";
+      const px = (X(i) / W) * r.width + 6 + (svg.getBoundingClientRect().left - cx.getBoundingClientRect().left);
+      const largura = tip.offsetWidth;
+      tip.style.left = Math.min(px + 12, cx.clientWidth - largura - 4) + "px";
+      tip.style.top = "12px";
+    });
+    svg.addEventListener("pointerleave", () => { tip.style.display = "none"; guia.style.display = "none"; });
+  }
+  function fecharEvolucao(){ $("#modal-evolucao").style.display = "none"; }
+  $("#modal-evolucao").addEventListener("click", (e) => { if(e.target.id === "modal-evolucao") fecharEvolucao(); });
+  document.addEventListener("keydown", (e) => { if(e.key === "Escape") fecharEvolucao(); });
+  ["#podio-ranking", "#lista-ranking"].forEach((sel) => {
+    $(sel).addEventListener("click", (e) => {
+      const it = e.target.closest(".ranking-item");
+      if(!it || !it.dataset.chave) return;
+      abrirEvolucao(it.dataset.chave, it.dataset.nome, Number(it.dataset.valor) || 0);
+    });
+  });
+
+  function renderizarRanking(){
+    const ocorrenciasRk = ocorrencias.filter(aposZerar);
+    const baseTurno = ocorrenciasRk.filter((o) => turnoDe(o) === turnoRanking);
+    const comFace = baseTurno.filter((o) => o.faceId === true);
+    const semFace = baseTurno.filter((o) => !o.faceId);
+    $("#rk-qtd-sim").textContent = comFace.length;
+    $("#rk-qtd-nao").textContent = semFace.length;
+    $("#tm-manha").textContent = ocorrenciasRk.filter((o) => turnoDe(o) === "manha").length;
+    $("#tm-tarde").textContent = ocorrenciasRk.filter((o) => turnoDe(o) === "tarde").length;
+    document.querySelectorAll("#abas-ranking button").forEach((b) => {
+      b.classList.toggle("ativa", b.dataset.aba === abaRanking);
+    });
+    document.querySelectorAll("#abas-turno button").forEach((b) => {
+      b.classList.toggle("ativa", b.dataset.turno === turnoRanking);
+    });
+
+    const base = abaRanking === "nao" ? semFace : comFace;
+    const inibValorPor = new Map();
+    baseTurno.forEach((o) => {
+      const k = chaveRanking(o.nome);
+      inibValorPor.set(k, (inibValorPor.get(k) || 0) + valorContado(o));
+    });
+    verificarMetas(ocorrenciasRk);
+    const mapa = new Map();
+    // Todos do turno aparecem na lista, mesmo zerados
+    (turnoRanking === "manha" ? PESSOAL_MANHA : PESSOAL_TARDE).forEach((n) => {
+      const chave = normalizarNome(n);
+      if(!mapa.has(chave)) mapa.set(chave, { chave, nome: n.trim(), qtd: 0, valor: 0, sim: 0, nao: 0, inib: 0 });
+    });
+    base.forEach((o) => {
+      const chave = chaveRanking(o.nome);
+      if(!mapa.has(chave)) mapa.set(chave, { chave, nome: (o.nome || "").trim() || "Sem nome", qtd: 0, valor: 0, sim: 0, nao: 0, inib: 0 });
+      const g = mapa.get(chave);
+      g.qtd += 1;
+      g.valor += valorContado(o);
+      if(o.faceId) g.sim += 1; else g.nao += 1;
+      if(o.inibido) g.inib += 1;
+    });
+    const ranking = [...mapa.values()].sort((a, b) => b.valor - a.valor || b.qtd - a.qtd || a.nome.localeCompare(b.nome));
+    const container = $("#lista-ranking");
+    const podio = $("#podio-ranking");
+    if(!ranking.length){
+      renderizarLiderMes();
+      podio.innerHTML = "";
+      container.innerHTML = '<div class="vazio">Nenhuma ocorrência registrada nesta aba.</div>';
+      return;
+    }
+    renderizarLiderMes();
+    const itemHtml = (g, i) => {
+      const detalhe = abaRanking === "todos"
+        ? ` · ${g.sim} com FaceID · ${g.nao} sem FaceID`
+        : "";
+      const inibValor = inibValorPor.get(g.chave) || 0;
+      const pct = Math.min(100, (inibValor / META_RECUPERADO_VALOR) * 100);
+      const cheia = inibValor >= META_RECUPERADO_VALOR;
+      return `
+      <div class="ranking-item ${i < 3 ? "podio-item top" + (i + 1) : ""}${cheia ? " meta-batida" : ""}" data-nome="${escapeHtml(g.nome)}" data-chave="${escapeHtml(g.chave)}" data-valor="${inibValor}" title="Clique para ver a evolução">
+        <div class="ranking-pos">${i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1) + "º"}</div>
+        <div class="ranking-info">
+          <div class="ranking-nome">${escapeHtml(g.nome)}</div>
+          <div class="ranking-sub"><span class="verde">${g.qtd}</span> ${g.qtd === 1 ? "ocorrência" : "ocorrências"}${detalhe}</div>
+          <div class="ranking-barra"><span class="${cheia ? "cheia" : ""}" style="width:${pct.toFixed(2)}%"></span></div>
+          <div class="ranking-meta"><b>${formatarMoeda(inibValor)}</b> / ${formatarMoeda(META_RECUPERADO_VALOR)} recuperados${cheia ? '<span class="selo-meta">🏆 META BATIDA!</span>' : ""}</div>
+        </div>
+        <div class="ranking-qtd">${formatarMoeda(g.valor)}<small>recuperado</small></div>
+      </div>`;
+    };
+    const top3 = ranking.slice(0, 3);
+    podio.style.gridTemplateColumns = top3.length === 3 ? "1.15fr 1fr 1fr" : `repeat(${top3.length}, minmax(0, 1fr))`;
+    podio.innerHTML = top3.map((g, i) => itemHtml(g, i)).join("");
+    container.innerHTML = ranking.slice(3).map((g, i) => itemHtml(g, i + 3)).join("");
+    ajustarRankingTela();
+  }
+
+  // Líder do mês anterior (mesmo critério do ranking: nº de ocorrências, depois valor recuperado)
+  function renderizarLiderMes(){
+    const box = $("#lider-mes");
+    const hoje = new Date();
+    const ref = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+    const chave = ref.getFullYear() + "-" + String(ref.getMonth() + 1).padStart(2, "0");
+    const nomeMes = ref.toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) + (turnoRanking === "manha" ? " · manhã" : " · tarde");
+    const mapa = new Map();
+    ocorrencias.filter((o) => aposZerar(o) && (o.data || "").slice(0, 7) === chave && turnoDe(o) === turnoRanking).forEach((o) => {
+      const k = normalizarNome(o.nome) || "—";
+      if(!mapa.has(k)) mapa.set(k, { nome: (o.nome || "").trim() || "Sem nome", qtd: 0, valor: 0, inib: 0 });
+      const g = mapa.get(k);
+      g.qtd += 1;
+      g.valor += valorContado(o);
+      if(o.inibido) g.inib += 1;
+    });
+    const lider = [...mapa.values()].sort((a, b) => b.valor - a.valor || b.qtd - a.qtd || a.nome.localeCompare(b.nome))[0];
+    box.style.display = "flex";
+    box.innerHTML = lider
+      ? `<div class="trofeu">🏆</div>
+         <div>
+           <div class="rotulo-lider">1º lugar em ${escapeHtml(nomeMes)}</div>
+           <div class="nome-lider" title="${escapeHtml(lider.nome)}">${escapeHtml(lider.nome)}</div>
+           <div class="det-lider"><b>${formatarMoeda(lider.valor)}</b> recuperados · ${lider.qtd} ocorr. · ${lider.inib} inib.</div>
+         </div>`
+      : `<div class="trofeu">🏆</div>
+         <div>
+           <div class="rotulo-lider">1º lugar em ${escapeHtml(nomeMes)}</div>
+           <div class="det-lider">Sem ocorrências no mês</div>
+         </div>`;
+  }
+
+  // Distribui os nomes em colunas/linhas para caber na tela sem rolar
+  function ajustarRankingTela(){
+    const c = $("#lista-ranking");
+    const n = c.children.length;
+    if(!n || $("#pagina-ranking").style.display === "none") return;
+    const GAP = 6, MIN_H = 40, MAX_H = 150, MIN_COL = 300;
+    const topo = c.getBoundingClientRect().top + window.scrollY;
+    const disp = Math.max(200, window.innerHeight - topo - 14);
+    const maxCols = Math.max(1, Math.floor(c.clientWidth / MIN_COL));
+    let cols = maxCols;
+    for(let k = 1; k <= maxCols; k++){
+      const linhas = Math.ceil(n / k);
+      if((disp - GAP * (linhas - 1)) / linhas >= MIN_H){ cols = k; break; }
+    }
+    const linhas = Math.ceil(n / cols);
+    const h = Math.max(MIN_H, Math.min(MAX_H, (disp - GAP * (linhas - 1)) / linhas));
+    c.style.setProperty("--rk-cols", cols);
+    c.style.setProperty("--rk-h", h + "px");
+    c.style.setProperty("--rk-s", Math.max(0.8, Math.min(1.9, h / 62)).toFixed(2));
+    c.dataset.dens = h >= 66 ? "baixa" : h >= 50 ? "media" : "alta";
+  }
+  window.addEventListener("resize", ajustarRankingTela);
+  document.addEventListener("fullscreenchange", () => {
+    $("#btn-tela-cheia").textContent = document.fullscreenElement ? "✕ Sair da tela cheia" : "⛶ Tela cheia";
+    setTimeout(ajustarRankingTela, 100);
+  });
+  $("#btn-tela-cheia").addEventListener("click", () => {
+    if(document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+  });
+
+  $("#btn-abrir-ranking").addEventListener("click", () => {
+    abaRanking = "sim";
+    turnoRanking = "manha";
+    $("#pagina-dashboard").style.display = "none";
+    $("#pagina-ranking").style.display = "block";
+    document.body.classList.add("modo-ranking");
+    renderizarRanking();
+  });
+  $("#btn-voltar-ranking").addEventListener("click", () => {
+    $("#pagina-ranking").style.display = "none";
+    document.body.classList.remove("modo-ranking");
+    if(document.fullscreenElement) document.exitFullscreen();
+    $("#pagina-dashboard").style.display = "block";
+  });
+  $("#abas-turno").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-turno]");
+    if(!b) return;
+    turnoRanking = b.dataset.turno;
+    renderizarRanking();
+  });
+  $("#abas-ranking").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-aba]");
+    if(!b) return;
+    abaRanking = b.dataset.aba;
+    renderizarRanking();
+  });
+
+  let regionalSelecionada = null;
+  let lojaSelecionada = null;
+
+  $("#btn-abrir-regionais").addEventListener("click", () => {
+    regionalSelecionada = null;
+    lojaSelecionada = null;
+    $("#pagina-dashboard").style.display = "none";
+    $("#pagina-regionais").style.display = "block";
+    atualizarVistaRegionais();
+  });
+
+  $("#btn-voltar-regionais").addEventListener("click", () => {
+    if(lojaSelecionada){
+      lojaSelecionada = null;
+    } else if(regionalSelecionada){
+      regionalSelecionada = null;
+    } else {
+      $("#pagina-regionais").style.display = "none";
+      $("#pagina-dashboard").style.display = "block";
+      return;
+    }
+    atualizarVistaRegionais();
+  });
+
+  function irParaLojas(nomeRegional){
+    regionalSelecionada = nomeRegional;
+    lojaSelecionada = null;
+    atualizarVistaRegionais();
+  }
+
+  function irParaOcorrenciasLoja(codigoLoja){
+    lojaSelecionada = codigoLoja;
+    atualizarVistaRegionais();
+  }
+
+  function atualizarVistaRegionais(){
+    const vRegionais = $("#vista-regionais");
+    const vLojas = $("#vista-lojas");
+    const vLoja = $("#vista-ocorrencias-loja");
+    const titulo = $("#titulo-pagina-regionais");
+
+    if(lojaSelecionada){
+      vRegionais.style.display = "none";
+      vLojas.style.display = "none";
+      vLoja.style.display = "block";
+      titulo.textContent = nomeCompletoLoja(lojaSelecionada);
+      renderizarOcorrenciasDaLoja(lojaSelecionada);
+    } else if(regionalSelecionada){
+      vRegionais.style.display = "none";
+      vLojas.style.display = "block";
+      vLoja.style.display = "none";
+      titulo.textContent = regionalSelecionada;
+      renderizarLojasDaRegional(regionalSelecionada);
+    } else {
+      vRegionais.style.display = "block";
+      vLojas.style.display = "none";
+      vLoja.style.display = "none";
+      titulo.textContent = "Painel de regionais";
+      renderizarRegionais();
+    }
+  }
+
+  function renderizarLojasDaRegional(nomeRegional){
+    const regionalInfo = REGIONAIS.find((r) => r.nome === nomeRegional);
+    const container = $("#lista-lojas-regional");
+    if(!regionalInfo){
+      container.innerHTML = '<div class="vazio">Regional não encontrada.</div>';
+      return;
+    }
+    container.innerHTML = `
+      <p class="lista-titulo">Responsável: ${escapeHtml(regionalInfo.responsavel)}</p>
+      <div class="grid-lojas">
+        ${regionalInfo.lojas.map((codigo) => {
+          const ocorrenciasLoja = ocorrencias.filter((o) => o.loja === codigo);
+          const inibidas = ocorrenciasLoja.filter((o) => o.inibido).length;
+          const naoInibidas = ocorrenciasLoja.length - inibidas;
+          const quadrilhaCount = ocorrenciasLoja.filter((o) => o.quadrilha).length;
+          const valorRecuperado = ocorrenciasLoja.reduce((s, o) => s + (valorContado(o)), 0);
+          return `
+            <div class="cartao-loja" data-loja="${escapeHtml(codigo)}" tabindex="0">
+              <div class="codigo-loja">${escapeHtml(nomeCompletoLoja(codigo))}</div>
+              <div class="total-ocorrencias-loja">${ocorrenciasLoja.length} ocorrência(s)</div>
+              <div class="tooltip-loja">
+                <div class="tooltip-linha"><span>Inibidas</span><strong>${inibidas}</strong></div>
+                <div class="tooltip-linha"><span>Não inibidas</span><strong>${naoInibidas}</strong></div>
+                <div class="tooltip-linha"><span>Quadrilha</span><strong>${quadrilhaCount}</strong></div>
+                <div class="tooltip-linha"><span>Valor recuperado</span><strong>${formatarMoeda(valorRecuperado)}</strong></div>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+
+    container.querySelectorAll(".cartao-loja").forEach((card) => {
+      card.addEventListener("click", () => irParaOcorrenciasLoja(card.dataset.loja));
+    });
+  }
+
+  function renderizarOcorrenciasDaLoja(codigo){
+    const container = $("#lista-ocorrencias-loja");
+    const lista = ocorrencias.filter((o) => o.loja === codigo);
+
+    if(lista.length === 0){
+      container.innerHTML = '<div class="vazio">Nenhuma ocorrência registrada nessa loja ainda.</div>';
+      return;
+    }
+
+    container.innerHTML = lista.map((o) => `
+      <div class="ocorrencia ${o.quadrilha ? "quadrilha" : ""}" data-id="${o.id}">
+        ${o.foto ? `<img class="ocorrencia-foto" src="${o.foto}" alt="Foto da ocorrência" />` : ""}
+        <div class="cabecalho">
+          <span class="data">${formatarData(o.data)}</span>
+          <span class="${o.inibido ? "tag-inibida" : "tag-nao-inibida"}">${o.inibido ? "Inibida" : "Não inibida"}</span>
+        </div>
+        <div class="descricao">${escapeHtml(o.descricao)}</div>
+        <div class="rodape">
+          <span>
+            ${o.quadrilha ? '<span class="tag-quadrilha">Quadrilha</span> ' : ""}
+            ${isAdmin ? `<span class="${o.confirmado ? "tag-confirmada" : "tag-pendente"}">${o.confirmado ? "Confirmada" : "Pendente"}</span> ` : ""}
+            <span class="valor-recuperado">${formatarMoeda(o.valorRecuperado || 0)} recuperado</span>
+          </span>
+        </div>
+      </div>
+    `).join("");
+
+    container.querySelectorAll(".ocorrencia").forEach((card) => {
+      card.addEventListener("click", () => abrirDetalhe(card.dataset.id));
+    });
+  }
+
+  function abrirDetalhe(id){
+    const o = ocorrencias.find((x) => x.id === id);
+    if(!o) return;
+    $("#modal-conteudo").innerHTML = `
+      <span class="modal-eyebrow">${escapeHtml(o.loja)}${o.regional ? ` · ${escapeHtml(o.regional)}` : ""}</span>
+      <h3>Ocorrência de ${formatarData(o.data)}</h3>
+      ${o.foto ? `<a href="${o.foto}" target="_blank" rel="noopener"><img class="modal-foto" src="${o.foto}" alt="Foto da ocorrência" /></a>` : ""}
+      <div class="modal-descricao">${escapeHtml(o.descricao)}</div>
+      <div class="modal-linha"><span>Loja</span><span>${escapeHtml(o.loja)}</span></div>
+      ${o.regional ? `<div class="modal-linha"><span>Regional</span><span>${escapeHtml(o.regional)}</span></div>` : ""}
+      <div class="modal-linha"><span>Data</span><span>${formatarData(o.data)}</span></div>
+      <div class="modal-linha"><span>Registrado por</span><span>${escapeHtml(o.nome || "—")}</span></div>
+      <div class="modal-linha"><span>Valor recuperado</span><span>${formatarMoeda(o.valorRecuperado || 0)}</span></div>
+      <div class="modal-linha"><span>Inibida</span><span>${o.inibido ? "Sim" : "Não"}</span></div>
+      <div class="modal-linha"><span>Quadrilha</span><span>${o.quadrilha ? "Sim" : "Não"}</span></div>
+      <div class="modal-linha"><span>FaceID</span><span>${o.faceId ? "Com FaceID" : "Sem FaceID"}</span></div>
+      ${isAdmin ? `<div class="modal-linha"><span>Confirmação</span><span>${o.confirmado ? `Confirmada por ${escapeHtml(o.confirmadoPor || "—")}` : "Pendente"}</span></div>` : ""}
+      <div class="modal-acoes">
+        <button id="modal-fechar" type="button">Fechar</button>
+        ${isAdmin ? (o.confirmado
+          ? `<button id="modal-desconfirmar" type="button" data-id="${o.id}">Desfazer confirmação</button>`
+          : `<button id="modal-confirmar" type="button" data-id="${o.id}">Confirmar registro</button>`) : ""}
+        <button id="modal-excluir" type="button" data-id="${o.id}">Excluir</button>
+      </div>
+    `;
+    $("#modal-overlay").style.display = "flex";
+    $("#modal-fechar").addEventListener("click", fecharModal);
+    $("#modal-excluir").addEventListener("click", async () => {
+      if(!confirm("Excluir esta ocorrência?")) return;
+      await api(`/api/ocorrencias/${o.id}`, { method: "DELETE" });
+      fecharModal();
+      carregarOcorrencias();
+    });
+    if(isAdmin){
+      const btnConfirmar = $("#modal-confirmar");
+      if(btnConfirmar){
+        btnConfirmar.addEventListener("click", async () => {
+          const nomeAdmin = prompt("Seu nome (para registrar quem confirmou):", "");
+          if(nomeAdmin === null) return;
+          await api(`/api/ocorrencias/${o.id}/confirmar`, {
+            method: "PATCH",
+            body: JSON.stringify({ confirmado: true, nome: nomeAdmin.trim() }),
+          });
+          fecharModal();
+          carregarOcorrencias();
+        });
+      }
+      const btnDesconfirmar = $("#modal-desconfirmar");
+      if(btnDesconfirmar){
+        btnDesconfirmar.addEventListener("click", async () => {
+          if(!confirm("Desfazer a confirmação deste registro?")) return;
+          await api(`/api/ocorrencias/${o.id}/confirmar`, {
+            method: "PATCH",
+            body: JSON.stringify({ confirmado: false }),
+          });
+          fecharModal();
+          carregarOcorrencias();
+        });
+      }
+    }
+  }
+
+  function fecharModal(){
+    $("#modal-overlay").style.display = "none";
+    $("#modal-conteudo").innerHTML = "";
+  }
+
+  $("#modal-overlay").addEventListener("click", (e) => {
+    if(e.target.id === "modal-overlay") fecharModal();
+  });
+
+  $("#btn-modo").addEventListener("click", () => {
+    modoQuadrilha = !modoQuadrilha;
+    atualizarResumo();
+  });
+
+  function agruparPorRegional(lista){
+    const grupos = {};
+
+    // Começa com as 4 regionais fixas, já com o responsável, mesmo sem ocorrências ainda
+    REGIONAIS.forEach((r) => {
+      grupos[r.nome] = { nome: r.nome, responsavel: r.responsavel, total: 0, valorRecuperado: 0, quadrilha: 0 };
+    });
+
+    lista.forEach((o) => {
+      const chave = (o.regional || "").trim() || "Sem regional definida";
+      if(!grupos[chave]){
+        const info = REGIONAIS.find((r) => r.nome.toLowerCase() === chave.toLowerCase());
+        grupos[chave] = { nome: chave, responsavel: info ? info.responsavel : "", total: 0, valorRecuperado: 0, quadrilha: 0 };
+      }
+      grupos[chave].total += 1;
+      grupos[chave].valorRecuperado += (valorContado(o));
+      if(o.quadrilha) grupos[chave].quadrilha += 1;
+    });
+    return Object.values(grupos).sort((a, b) => b.total - a.total);
+  }
+
+  function agruparInibidasPorMes(lista){
+    const meses = {};
+    lista.forEach((o) => {
+      if(!o.inibido) return;
+      const chave = (o.data || "").slice(0, 7); // "AAAA-MM"
+      if(!chave) return;
+      if(!meses[chave]){
+        const porRegional = {};
+        REGIONAIS.forEach((r) => { porRegional[r.nome] = { qtd: 0, valorRecuperado: 0 }; });
+        meses[chave] = { chave, porRegional, total: 0, valorRecuperado: 0 };
+      }
+      const nomeRegional = REGIONAIS.some((r) => r.nome === o.regional) ? o.regional : null;
+      const valor = valorContado(o);
+      if(nomeRegional){
+        meses[chave].porRegional[nomeRegional].qtd += 1;
+        meses[chave].porRegional[nomeRegional].valorRecuperado += valor;
+      }
+      meses[chave].total += 1;
+      meses[chave].valorRecuperado += valor;
+    });
+    return Object.values(meses).sort((a, b) => b.chave.localeCompare(a.chave));
+  }
+
+  function formatarMesLabel(chave){
+    const nomesMes = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+    const [ano, mes] = chave.split("-");
+    const idx = parseInt(mes, 10) - 1;
+    return `${nomesMes[idx] || mes}/${ano}`;
+  }
+
+  function renderizarInibidasMensal(){
+    const barras = $("#barras-inibidas-mensal");
+    const legenda = $("#legenda-inibidas-mensal");
+    if(!barras) return;
+
+    const cores = ["var(--amber)", "var(--focus)", "var(--green)", "var(--red)"];
+    const dados = agruparInibidasPorMes(ocorrencias).slice(0, 12).reverse();
+
+    if(legenda){
+      legenda.innerHTML = REGIONAIS.map((r, i) => `
+        <div class="legenda-item">
+          <span class="legenda-ponto" style="background:${cores[i % cores.length]}"></span>
+          <span class="legenda-nome">${escapeHtml(r.nome)} — ${escapeHtml(r.responsavel)}</span>
+        </div>
+      `).join("");
+    }
+
+    if(dados.length === 0){
+      barras.innerHTML = `<div class="vazio-grafico">Nenhuma ocorrência inibida registrada ainda.</div>`;
+      return;
+    }
+
+    const maior = Math.max(...dados.map((m) => m.total), 1);
+    const ALTURA_MAX = 150;
+
+    barras.innerHTML = dados.map((m) => {
+      const altura = m.total === 0 ? 0 : Math.max(4, Math.round((m.total / maior) * ALTURA_MAX));
+      const segmentos = REGIONAIS.map((r, i) => {
+        const dadosRegional = m.porRegional[r.nome] || { qtd: 0, valorRecuperado: 0 };
+        const qtd = dadosRegional.qtd || 0;
+        if(qtd <= 0 || m.total <= 0) return "";
+        const alturaSeg = Math.max(2, Math.round((qtd / m.total) * altura));
+        return `<span class="segmento-regional" style="height:${alturaSeg}px;background:${cores[i % cores.length]}"
+          data-nome="${escapeHtml(r.nome)}"
+          data-responsavel="${escapeHtml(r.responsavel)}"
+          data-qtd="${qtd}"
+          data-valor="${escapeHtml(formatarMoeda(dadosRegional.valorRecuperado))}"
+        ></span>`;
+      }).join("");
+
+      return `
+        <div class="coluna-mes-inibida" tabindex="0">
+          <div class="grafico-valor-mes">${m.total}</div>
+          <div class="barra-empilhada" style="height:${altura}px;">${segmentos}</div>
+          <div class="grafico-rotulo-mes">${formatarMesLabel(m.chave)}</div>
+          <div class="grafico-recuperado-mes">${formatarMoeda(m.valorRecuperado)}</div>
+          <div class="tooltip-mes">
+            ${REGIONAIS.map((r) => {
+              const dadosRegional = m.porRegional[r.nome] || { qtd: 0, valorRecuperado: 0 };
+              return `
+                <div class="tooltip-linha"><span>${escapeHtml(r.nome)} — ${escapeHtml(r.responsavel)}</span><strong>${dadosRegional.qtd}</strong></div>
+                <div class="tooltip-linha"><span>Valor recuperado</span><strong>${formatarMoeda(dadosRegional.valorRecuperado)}</strong></div>
+              `;
+            }).join("")}
+            <div class="tooltip-linha"><span>Total</span><strong>${m.total}</strong></div>
+            <div class="tooltip-linha"><span>Valor recuperado (total)</span><strong>${formatarMoeda(m.valorRecuperado)}</strong></div>
+          </div>
+          <div class="tooltip-segmento"></div>
+        </div>
+      `;
+    }).join("");
+
+    // Tooltip individual por segmento: posicionado via JS (position:fixed) para
+    // nunca ficar cortado pelo card com rolagem horizontal, nem vazar da tela.
+    barras.querySelectorAll(".coluna-mes-inibida").forEach((coluna) => {
+      const tooltipMes = coluna.querySelector(".tooltip-mes");
+      if(tooltipMes){
+        coluna.addEventListener("mouseenter", () => posicionarTooltip(coluna, tooltipMes));
+        coluna.addEventListener("focus", () => posicionarTooltip(coluna, tooltipMes));
+      }
+      const tooltipSeg = coluna.querySelector(".tooltip-segmento");
+      if(!tooltipSeg) return;
+      coluna.querySelectorAll(".segmento-regional").forEach((seg) => {
+        seg.addEventListener("mouseenter", () => {
+          tooltipSeg.innerHTML = `
+            <div class="tooltip-linha"><span>${escapeHtml(seg.dataset.nome)}</span></div>
+            <div class="tooltip-linha"><span>Responsável</span><strong>${escapeHtml(seg.dataset.responsavel)}</strong></div>
+            <div class="tooltip-linha"><span>Ocorrências</span><strong>${escapeHtml(seg.dataset.qtd)}</strong></div>
+            <div class="tooltip-linha"><span>Valor recuperado</span><strong>${escapeHtml(seg.dataset.valor)}</strong></div>
+          `;
+          tooltipSeg.style.display = "block";
+          coluna.classList.add("segmento-ativo");
+          posicionarTooltip(seg, tooltipSeg);
+        });
+        seg.addEventListener("mouseleave", () => {
+          tooltipSeg.style.display = "none";
+          coluna.classList.remove("segmento-ativo");
+        });
+      });
+    });
+  }
+
+  function renderizarRegionais(){
+    const container = $("#lista-regionais");
+    const grupos = agruparPorRegional(ocorrencias);
+
+    container.innerHTML = grupos.map((g) => `
+      <div class="cartao-regional" data-regional="${escapeHtml(g.nome)}">
+        <div class="nome-regional">${escapeHtml(g.nome)}</div>
+        ${g.responsavel ? `<div class="linha-metrica"><span>Responsável</span><strong>${escapeHtml(g.responsavel)}</strong></div>` : ""}
+        <div class="linha-metrica"><span>Ocorrências</span><strong>${g.total}</strong></div>
+        <div class="linha-metrica"><span>Recuperado</span><strong>${formatarMoeda(g.valorRecuperado)}</strong></div>
+        <div class="linha-metrica"><span>Quadrilha</span><strong>${g.quadrilha}</strong></div>
+      </div>
+    `).join("");
+
+    container.querySelectorAll(".cartao-regional").forEach((card) => {
+      card.addEventListener("click", () => {
+        const nome = card.dataset.regional;
+        if(nome === "Sem regional definida") return;
+        irParaLojas(nome);
+      });
+    });
+  }
+
+  ["#f-loja", "#f-regional", "#f-data-ini", "#f-data-fim"].forEach((sel) => {
+    $(sel).addEventListener("input", renderizarLista);
+  });
+  $("#f-quadrilha").addEventListener("change", renderizarLista);
+  $("#f-pendente").addEventListener("change", renderizarLista);
+  $("#f-confirmada").addEventListener("change", renderizarLista);
+  $("#btn-limpar-filtro").addEventListener("click", () => {
+    $("#f-loja").value = "";
+    $("#f-regional").value = "";
+    $("#f-data-ini").value = "";
+    $("#f-data-fim").value = "";
+    $("#f-quadrilha").checked = false;
+    $("#f-pendente").checked = false;
+    $("#f-confirmada").checked = false;
+    renderizarLista();
+  });
+
+  function formatarMesAtualLabel(){
+    const nomesMes = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+    const agora = new Date();
+    return `${nomesMes[agora.getMonth()]}/${agora.getFullYear()}`;
+  }
+
+  function obterValorRecuperadoMesAtual(){
+    const agora = new Date();
+    const chaveMesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`;
+    return ocorrencias
+      .filter((o) => (o.data || "").slice(0, 7) === chaveMesAtual)
+      .reduce((s, o) => s + (valorContado(o)), 0);
+  }
+
+  function atualizarResumo(){
+    const btn = $("#btn-modo");
+    const totalGeral = ocorrencias.reduce((s, o) => s + (valorContado(o)), 0);
+    const totalQuadrilha = ocorrencias
+      .filter((o) => o.quadrilha)
+      .reduce((s, o) => s + (valorContado(o)), 0);
+
+    $("#total-ocorrencias").textContent = ocorrencias.length;
+    $("#contador-ocorrencias").textContent = ocorrencias.length === 1
+      ? "1 registrada"
+      : `${ocorrencias.length} registradas`;
+
+    $("#rotulo-valor-mes").textContent = `Valor recuperado em ${formatarMesAtualLabel()}`;
+    $("#valor-recuperado-mes").textContent = formatarMoeda(obterValorRecuperadoMesAtual());
+
+    if(modoQuadrilha){
+      btn.classList.remove("modo-geral");
+      btn.classList.add("modo-quadrilha");
+      btn.querySelector(".rotulo").textContent = "Valor recuperado (quadrilha)";
+      btn.querySelector(".valor").textContent = formatarMoeda(totalQuadrilha);
+      btn.querySelector(".dica").textContent = "Clique para ver o valor recuperado total";
+    } else {
+      btn.classList.remove("modo-quadrilha");
+      btn.classList.add("modo-geral");
+      btn.querySelector(".rotulo").textContent = "Valor recuperado (total)";
+      btn.querySelector(".valor").textContent = formatarMoeda(totalGeral);
+      btn.querySelector(".dica").textContent = "Clique para ver só valor recuperado de quadrilha";
+    }
+
+    renderizarGraficoRegionais();
+    renderizarInibidasMensal();
+    renderizarIndicadoresGeral();
+  }
+
+  // ---------- Gráfico de pizza (rosca) reutilizável, sem dependências ----------
+  function criarDonut(svgEl, dados, corFn){
+    const total = dados.reduce((s, d) => s + d.valor, 0);
+    const R = 50, C = 2 * Math.PI * R, ESPESSURA = 18;
+    let acumulado = 0;
+    let partes = `<circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--line)" stroke-width="${ESPESSURA}"></circle>`;
+
+    if(total > 0){
+      dados.forEach((d, i) => {
+        if(d.valor <= 0) return;
+        const comprimento = (d.valor / total) * C;
+        partes += `<circle cx="60" cy="60" r="${R}" fill="none" stroke="${corFn(d, i)}" stroke-width="${ESPESSURA}" stroke-dasharray="${comprimento} ${C}" stroke-dashoffset="${-acumulado}" transform="rotate(-90 60 60)"></circle>`;
+        acumulado += comprimento;
+      });
+    }
+
+    partes += `
+      <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" font-family="var(--font-data)">${total}</text>
+      <text x="60" y="74" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="var(--font-body)">total</text>
+    `;
+    svgEl.innerHTML = partes;
+  }
+
+  function renderizarLegenda(container, dados, cores, opcoes = {}){
+    container.innerHTML = dados.map((d, i) => {
+      const subPartes = [];
+      if(d.responsavel) subPartes.push(`<span>Responsável: <strong>${escapeHtml(d.responsavel)}</strong></span>`);
+      if(d.recuperado !== undefined) subPartes.push(`<span class="legenda-sub-recuperado">Recuperado: ${formatarMoeda(d.recuperado)}</span>`);
+      const sub = subPartes.length ? `<div class="legenda-sub">${subPartes.join("")}</div>` : "";
+      return `
+      <div class="legenda-item ${opcoes.clicavel ? "clicavel" : ""}" data-nome="${escapeHtml(d.nome)}">
+        <span class="legenda-ponto" style="background:${cores[i % cores.length]}"></span>
+        <div class="legenda-info">
+          <div class="legenda-linha-principal">
+            <span class="legenda-nome">${escapeHtml(d.nome)}</span>
+            <span class="legenda-valor">${d.valor}</span>
+          </div>
+          ${sub}
+        </div>
+      </div>
+    `;
+    }).join("");
+
+    if(opcoes.clicavel){
+      container.querySelectorAll(".legenda-item").forEach((el) => {
+        el.addEventListener("click", () => opcoes.onClick(el.dataset.nome));
+      });
+    }
+  }
+
+  // Visível para todo mundo (comum e admin): quantas ocorrências tiveram
+  // apoio de cópia, envolveram quadrilha ou tiveram monitoramento. Uma
+  // mesma ocorrência pode contar em mais de uma fatia (não é mutuamente
+  // exclusivo), por isso o "total" no centro é a soma das três, não o
+  // total de ocorrências.
+  function agruparIndicadoresGeral(lista){
+    return [
+      { nome: "Apoio de cópia", valor: lista.filter((o) => o.apoioCopia).length },
+      { nome: "Quadrilha", valor: lista.filter((o) => o.quadrilha).length },
+      { nome: "Monitoramento", valor: lista.filter((o) => o.monitoramento).length },
+    ];
+  }
+
+  function renderizarIndicadoresGeral(){
+    const svg = $("#pizza-indicadores");
+    if(!svg) return;
+    const dados = agruparIndicadoresGeral(ocorrencias);
+    const cores = ["var(--focus)", "var(--red)", "var(--green)"];
+    criarDonut(svg, dados, (d, i) => cores[i % cores.length]);
+    renderizarLegenda($("#legenda-indicadores"), dados, cores);
+  }
+
+  function renderizarGraficoRegionais(){
+    const grupos = agruparPorRegional(ocorrencias);
+    const dados = grupos.map((g) => ({ nome: g.nome, valor: g.total, responsavel: g.responsavel, recuperado: g.valorRecuperado }));
+    const cores = ["var(--amber)", "var(--focus)", "var(--green)", "var(--red)"];
+
+    criarDonut($("#pizza-regionais"), dados, (d, i) => cores[i % cores.length]);
+    renderizarLegenda($("#legenda-regionais"), dados, cores, {
+      clicavel: true,
+      onClick: (nome) => {
+        if(nome === "Sem regional definida") return;
+        irParaLojas(nome);
+      },
+    });
+    renderizarColunasRegionais(grupos);
+  }
+
+  function renderizarColunasRegionais(grupos){
+    const container = $("#colunas-regionais");
+    const maior = Math.max(...grupos.map((g) => g.total), 1);
+    const ALTURA_MAX = 120;
+
+    container.innerHTML = grupos.map((g, i) => {
+      const altura = g.total === 0 ? 4 : Math.max(4, Math.round((g.total / maior) * ALTURA_MAX));
+      const cor = `cor-${(i % 4) + 1}`;
+      return `
+        <button type="button" class="grafico-coluna-regional" data-regional="${escapeHtml(g.nome)}">
+          <div class="grafico-valor">${g.total}</div>
+          <div class="grafico-barra ${cor}" style="height:${altura}px;"></div>
+          <div class="grafico-rotulo">${escapeHtml(g.nome)}</div>
+          <div class="grafico-recuperado">${formatarMoeda(g.valorRecuperado)}</div>
+          <div class="tooltip-regional">
+            ${g.responsavel ? `<div class="tooltip-linha"><span>Responsável</span><strong>${escapeHtml(g.responsavel)}</strong></div>` : ""}
+            <div class="tooltip-linha"><span>Ocorrências</span><strong>${g.total}</strong></div>
+            <div class="tooltip-linha"><span>Recuperado</span><strong>${formatarMoeda(g.valorRecuperado)}</strong></div>
+          </div>
+        </button>
+      `;
+    }).join("");
+
+    container.querySelectorAll(".grafico-coluna-regional").forEach((col) => {
+      col.addEventListener("click", () => {
+        const nome = col.dataset.regional;
+        if(nome === "Sem regional definida") return;
+        irParaLojas(nome);
+      });
+      const tip = col.querySelector(".tooltip-regional");
+      if(tip){
+        col.addEventListener("mouseenter", () => posicionarTooltip(col, tip));
+        col.addEventListener("focus", () => posicionarTooltip(col, tip));
+      }
+    });
+  }
+
+  // Posiciona um tooltip com position:fixed com base nas coordenadas reais da
+  // âncora na tela, para nunca ficar cortado por um card com rolagem (overflow)
+  // nem vazar pela borda esquerda/direita/superior da tela.
+  function posicionarTooltip(ancora, tooltip){
+    const rect = ancora.getBoundingClientRect();
+    const margem = 8;
+    const largura = tooltip.offsetWidth || parseFloat(getComputedStyle(tooltip).minWidth) || 190;
+    const altura = tooltip.offsetHeight || 90;
+
+    let esquerda = rect.left + rect.width / 2 - largura / 2;
+    esquerda = Math.max(margem, Math.min(esquerda, window.innerWidth - largura - margem));
+
+    let topo = rect.top - altura - 10;
+    if(topo < margem){
+      topo = Math.min(rect.bottom + 10, window.innerHeight - altura - margem);
+    }
+
+    tooltip.style.left = `${esquerda}px`;
+    tooltip.style.top = `${topo}px`;
+    tooltip.style.right = "auto";
+    tooltip.style.bottom = "auto";
+    tooltip.style.transform = "none";
+  }
+
+  function obterFiltros(){
+    return {
+      loja: $("#f-loja").value.trim().toLowerCase(),
+      regional: $("#f-regional").value.trim().toLowerCase(),
+      dataIni: $("#f-data-ini").value,
+      dataFim: $("#f-data-fim").value,
+      soQuadrilha: $("#f-quadrilha").checked,
+      soPendente: isAdmin && $("#f-pendente").checked,
+      soConfirmada: isAdmin && $("#f-confirmada").checked,
+    };
+  }
+
+  function aplicarFiltros(lista){
+    const f = obterFiltros();
+    return lista.filter((o) => {
+      if(f.loja && !o.loja.toLowerCase().includes(f.loja)) return false;
+      if(f.regional && !(o.regional || "").toLowerCase().includes(f.regional)) return false;
+      if(f.dataIni && o.data < f.dataIni) return false;
+      if(f.dataFim && o.data > f.dataFim) return false;
+      if(f.soQuadrilha && !o.quadrilha) return false;
+      if(f.soPendente && o.confirmado) return false;
+      if(f.soConfirmada && !o.confirmado) return false;
+      return true;
+    });
+  }
+
+  function atualizarResultadoFiltro(qtd, filtroAtivo){
+    const el = $("#resultado-filtro");
+    if(!filtroAtivo){
+      el.textContent = "";
+      return;
+    }
+    el.textContent = qtd === 0
+      ? "Nenhum registro encontrado para esse filtro."
+      : `${qtd} registro(s) encontrado(s).`;
+  }
+
+  function filtroEstaAtivo(){
+    const f = obterFiltros();
+    return Boolean(f.loja || f.regional || f.dataIni || f.dataFim || f.soQuadrilha || f.soPendente || f.soConfirmada);
+  }
+
+  function renderizarLista(){
+    const lista = $("#lista");
+    const filtroAtivo = filtroEstaAtivo();
+    const exibidas = filtroAtivo ? aplicarFiltros(ocorrencias) : ocorrencias;
+
+    atualizarResultadoFiltro(exibidas.length, filtroAtivo);
+
+    if(ocorrencias.length === 0){
+      lista.innerHTML = '<div class="vazio">Nenhuma ocorrência registrada ainda.</div>';
+      return;
+    }
+    if(exibidas.length === 0){
+      lista.innerHTML = '<div class="vazio">Nenhum registro corresponde ao filtro aplicado.</div>';
+      return;
+    }
+    lista.innerHTML = exibidas.map((o) => `
+      <div class="ocorrencia ${o.quadrilha ? "quadrilha" : ""}" data-id="${o.id}" tabindex="0">
+        ${o.foto ? `<img class="ocorrencia-foto" src="${o.foto}" alt="Foto da ocorrência" />` : ""}
+        <div class="cabecalho">
+          <span class="loja">${escapeHtml(o.loja)}${o.regional ? ` <span class="regional-tag">· ${escapeHtml(o.regional)}</span>` : ""}</span>
+          <span class="data">${formatarData(o.data)}</span>
+        </div>
+        <div class="descricao">${escapeHtml(o.descricao)}</div>
+        <div class="rodape">
+          <span>
+            ${o.quadrilha ? '<span class="tag-quadrilha">Quadrilha</span> ' : ""}
+            ${isAdmin ? `<span class="${o.confirmado ? "tag-confirmada" : "tag-pendente"}">${o.confirmado ? "Confirmada" : "Pendente"}</span> ` : ""}
+            <span class="valor-recuperado">${formatarMoeda(o.valorRecuperado || 0)} recuperado</span>
+          </span>
+          <button class="excluir" data-id="${o.id}">Excluir</button>
+        </div>
+        <div class="tooltip-ocorrencia">
+          <div class="tooltip-linha"><span>Registrado por</span><strong>${escapeHtml(o.nome || "—")}</strong></div>
+          ${o.regional ? `<div class="tooltip-linha"><span>Regional</span><strong>${escapeHtml(o.regional)}</strong></div>` : ""}
+          <div class="tooltip-linha"><span>Apoio de cópia</span><strong>${o.apoioCopia ? "Sim" : "Não"}</strong></div>
+          <div class="tooltip-linha"><span>Monitoramento</span><strong>${o.monitoramento ? "Sim" : "Não"}</strong></div>
+          <div class="tooltip-linha"><span>Inibida</span><strong>${o.inibido ? "Sim" : "Não"}</strong></div>
+          <div class="tooltip-linha"><span>Quadrilha</span><strong>${o.quadrilha ? "Sim" : "Não"}</strong></div>
+          <div class="tooltip-linha"><span>Valor recuperado</span><strong>${formatarMoeda(o.valorRecuperado || 0)}</strong></div>
+          ${isAdmin ? `<div class="tooltip-linha"><span>Confirmação</span><strong>${o.confirmado ? `Sim, por ${escapeHtml(o.confirmadoPor || "—")}` : "Pendente"}</strong></div>` : ""}
+        </div>
+      </div>
+    `).join("");
+
+    lista.querySelectorAll(".ocorrencia").forEach((card) => {
+      card.addEventListener("click", () => abrirDetalhe(card.dataset.id));
+    });
+
+    lista.querySelectorAll(".excluir").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if(!confirm("Excluir esta ocorrência?")) return;
+        await api(`/api/ocorrencias/${btn.dataset.id}`, { method: "DELETE" });
+        carregarOcorrencias();
+      });
+    });
+  }
+
+  function escapeHtml(s){
+    const div = document.createElement("div");
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  async function carregarOcorrencias(){
+    const resp = await api("/api/ocorrencias");
+    ocorrencias = await resp.json();
+    atualizarResumo();
+    atualizarVistaRegionais();
+    renderizarLista();
+    if($("#pagina-ranking").style.display !== "none") renderizarRanking();
+  }
+
+  $("#form-ocorrencia").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const corpo = {
+      nome: $("#nome").value,
+      data: $("#data").value,
+      loja: $("#loja").value,
+      regional: $("#regional").value,
+      descricao: $("#descricao").value,
+      valorRecuperado: textoParaValor($("#valorRecuperado").value),
+      quadrilha: $("#quadrilha").checked,
+      inibido: $("#inibido").checked,
+      apoioCopia: $("#apoioCopia").checked,
+      monitoramento: $("#monitoramento").checked,
+      faceId: $("#faceid-sim").checked,
+      foto: fotoBase64Atual,
+    };
+    const resp = await api("/api/ocorrencias", {
+      method: "POST",
+      body: JSON.stringify(corpo),
+    });
+    if(resp.ok){
+      e.target.reset();
+      fotoBase64Atual = null;
+      $("#foto-preview").style.display = "none";
+      carregarOcorrencias();
+    } else {
+      const erro = await resp.json().catch(() => ({}));
+      alert(erro.erro || "Erro ao salvar a ocorrência.");
+    }
+  });
+
+  // inicializacao
+  if(senhaAtual){
+    mostrarPainel();
+  } else {
+    mostrarLogin();
+  }
+
+  // ---------- Instalação como app (PWA) ----------
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+
+  let promptInstalacaoDiferido = null;
+  const btnInstalar = document.createElement("button");
+  btnInstalar.id = "btn-instalar-app";
+  btnInstalar.type = "button";
+  btnInstalar.textContent = "⬇ Instalar app";
+  btnInstalar.style.cssText = [
+    "display:none", "position:fixed", "right:18px", "bottom:18px", "z-index:100",
+    "background:var(--focus)", "color:#04121f", "font-family:var(--font-display)",
+    "font-weight:600", "font-size:0.85rem", "border:none", "border-radius:8px",
+    "padding:11px 16px", "cursor:pointer", "box-shadow:0 8px 24px rgba(0,0,0,0.4)",
+  ].join(";");
+  document.body.appendChild(btnInstalar);
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    promptInstalacaoDiferido = e;
+    btnInstalar.style.display = "block";
+  });
+
+  btnInstalar.addEventListener("click", async () => {
+    if(!promptInstalacaoDiferido) return;
+    btnInstalar.style.display = "none";
+    promptInstalacaoDiferido.prompt();
+    await promptInstalacaoDiferido.userChoice;
+    promptInstalacaoDiferido = null;
+  });
+
+  window.addEventListener("appinstalled", () => {
+    btnInstalar.style.display = "none";
+  });
+
+</script>
+</body>
+</html>
